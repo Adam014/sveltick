@@ -7,29 +7,13 @@ import pkg from './package.json';
 export default {
   input: 'src/index.js',
   output: [
-    {
-      file: pkg.module,
-      format: 'es',
-      sourcemap: true,
-    },
-    {
-      file: pkg.main,
-      format: 'cjs',
-      sourcemap: true,
-    },
+    { file: pkg.module, format: 'es', sourcemap: true },
+    { file: pkg.main, format: 'cjs', sourcemap: true },
   ],
   plugins: [
-    svelte({
-      compilerOptions: {
-        hydratable: true, // Enable hydration for SSR compatibility
-      },
-    }),
-    resolve({
-      browser: false, // Disable browser-specific resolution for SSR
-      preferBuiltins: true, // Prefer Node.js built-in modules for SSR
-    }),
+    svelte(),
+    resolve(),
     commonjs(),
-    terser(), // Minify the output for production
+    terser(), // Minify output for production
   ],
-  external: [...Object.keys(pkg.dependencies || {})],
 };

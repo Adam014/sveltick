@@ -3,7 +3,7 @@ import {
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackComponentRender,
-  getPerformanceMetrics
+  getPerformanceMetrics,
 } from './PerformanceTracker.js';
 
 export {
@@ -11,5 +11,5 @@ export {
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackComponentRender,
-  getPerformanceMetrics
+  getPerformanceMetrics,
 };
