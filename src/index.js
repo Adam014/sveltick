@@ -1,15 +1,17 @@
-import Sveltick from './Sveltick.svelte';
 import {
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackComponentRender,
+  trackLargestContentfulPaint,  
+  trackCumulativeLayoutShift, 
   getPerformanceMetrics,
 } from './PerformanceTracker.js';
 
 export {
-  Sveltick,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackComponentRender,
+  trackLargestContentfulPaint,  
+  trackCumulativeLayoutShift, 
   getPerformanceMetrics,
 };

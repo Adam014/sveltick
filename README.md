@@ -23,14 +23,19 @@ yarn add sveltick
 ## 🔥 Quick Start
 Import **Sveltick** into your Svelte app and start tracking your app's performance!
 
-Tracking First Contentful Paint & Time to Interactive
+Tracking First Contentful Paint, Time to Interactive, Largest Contentful Paint & Cumulative Layout Shift
 ```svelte
 <script>
-  import { trackFirstContentfulPaint, trackTimeToInteractive } from 'sveltick';
+  import { onMount } from 'svelte';
+  import { trackFirstContentfulPaint, trackTimeToInteractive, trackLargestContentfulPaint, trackCumulativeLayoutShift } from 'sveltick';
 
-  // Track metrics
-  trackFirstContentfulPaint();
-  trackTimeToInteractive();
+  onMount(() => {
+    // Track metrics
+    trackFirstContentfulPaint();
+    trackTimeToInteractive();
+    trackLargestContentfulPaint();
+    trackCumulativeLayoutShift();
+  });
 </script>
 ```
 
@@ -38,13 +43,13 @@ Tracking First Contentful Paint & Time to Interactive
 Use the Sveltick component to track the render times of individual components:
 
 ```svelte
-<script>
-  import { Sveltick } from 'sveltick';
-</script>
+  import { onMount } from 'svelte';
+  import { trackComponentRender } from 'sveltick';
 
-<Sveltick name="MyCoolComponent">
-  <p>This component is tracked by Sveltick! 🎉</p>
-</Sveltick>
+  onMount(() => {
+    const renderTime = performance.now();  // Measure render time
+    trackComponentRender('YourComponent', renderTime);  // Track component render
+  });
 ```
 
 ## 🛠 Performance Report
@@ -55,6 +60,18 @@ import { getPerformanceMetrics } from 'sveltick';
 
 const metrics = getPerformanceMetrics();
 console.log(metrics); // Output your performance metrics 🧐
+```
+
+## Tracking all reports at once (components + FCP, TTI, LCP & CLS)
+
+```svelte
+  import { onMount } from 'svelte';
+  import { getPerformanceMetrics } from 'sveltick';
+
+  onMount(async () => {
+    const metrics = await getPerformanceMetrics();
+    console.log('Performance Metrics (including component renders):', metrics);
+  });
 ```
 
 ## 📜 License
