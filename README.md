@@ -146,7 +146,7 @@ console.log(metrics); // Output your performance metrics 🧐
 
 Output example screenshot:
 
-![Sveltick Example](https://storage.cloud.google.com/sveltick_assets/screenshot_sveltick.png)
+![Sveltick Example](https://storage.googleapis.com/sveltick_assets/screenshot_sveltick.png)
 
 For now it is just this simple console info about the project (of course you could implement it into something bigger!). But in the **upcoming days I will create a dashboard performance-tracking webapp for this library**, where you could use `Sveltick` from anywhere around the globe! So stay tuned guys!
 
