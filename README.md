@@ -5,6 +5,8 @@ Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tr
 - **First Contentful Paint** ⚡️
 - **Time to Interactive** 🕒
 - **Component Render Time** 🔧
+- **Largest Contentful Paint** 📏
+- **Cumulative Layout Shift** 📊
 
 ## 🚀 Installation
 
