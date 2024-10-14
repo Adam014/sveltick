@@ -1,19 +1,25 @@
 import {
+  runPerformanceTracker, 
+  getPerformanceMetrics,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
+  trackLargestContentfulPaint,
+  trackCumulativeLayoutShift,
   trackComponentRender,
-  trackLargestContentfulPaint,  
-  trackCumulativeLayoutShift, 
-  getPerformanceMetrics,
-  checkPerformanceAlerts
-} from './PerformanceTracker.js';
+  checkPerformanceAlerts,
+  calculatePerformanceScore,
+  provideFeedback
+} from './PerformanceTracker.js'
 
 export {
+  runPerformanceTracker, 
+  getPerformanceMetrics,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
+  trackLargestContentfulPaint,
+  trackCumulativeLayoutShift,
   trackComponentRender,
-  trackLargestContentfulPaint,  
-  trackCumulativeLayoutShift, 
-  getPerformanceMetrics,
-  checkPerformanceAlerts
-};
+  checkPerformanceAlerts,
+  calculatePerformanceScore,
+  provideFeedback
+}

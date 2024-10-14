@@ -2,9 +2,12 @@
 
 Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps. Track important performance metrics like:
 
-## 🚀 New Version 1.2.0
-- Added performance alerts for all metrics (FCP, LCP, TTI, CLS, Component Render Times)
-- Customizable thresholds for alerts
+## 🚀 New Version 1.3.0
+
+- Providing a performance score based on how well the app meets the defined thresholds.
+- Offering feedback in a fun way, rewarding high scores and encouraging improvements for lower scores.
+- `runPerformanceTracker()` - main function that runs all the tracking, alerts, and gamification features.
+- Users can customize what they want to run through options like `trackMetrics`, `showAlerts`, and `enableGamification`.
 
 ## 📊 Metrics to check
 
@@ -29,9 +32,34 @@ yarn add sveltick
 ```
 
 ## 🔥 Quick Start
+
 Import **Sveltick** into your Svelte app and start tracking your app's performance!
 
-Tracking `⚡️First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest Contentful Paint` & `📊 Cumulative Layout Shift`
+### 📈 Track **everything** you need and configure what metrics you want to see
+
+```svelte
+  import { onMount } from 'sveltick';
+  import { runPerformanceTracker } from 'sveltick';
+
+  onMount(() => {
+    // Run the performance tracker with custom options
+    runPerformanceTracker({
+      trackMetrics: true,     // Track all metrics
+      showAlerts: true,       // Enable alerts
+      enableGamification: true, // Enable gamification
+      thresholds:  {
+        fcp: 1800,  // Custom threshold for FCP
+        lcp: 2300,  // Custom threshold for LCP
+        tti: 2800,  // Custom threshold for TTI
+        cls: 0.15,  // Custom threshold for CLS
+        componentRenderTime: 400 // Custom threshold for component render time
+      }
+    });
+  });
+```
+
+### Tracking `⚡️First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest Contentful Paint` & `📊 Cumulative Layout Shift`
+
 ```svelte
 <script>
   import { onMount } from 'svelte';
@@ -47,7 +75,7 @@ Tracking `⚡️First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest
 </script>
 ```
 
-## 🔧 Tracking `Component` Render Times
+### 🔧 Tracking `Component` Render Times
 
 ```svelte
   import { onMount } from 'svelte';
@@ -59,7 +87,8 @@ Tracking `⚡️First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest
   });
 ```
 
-## 🛠 Performance Report
+### 🛠 Performance Report
+
 You can access all performance metrics at any point using:
 
 ```svelte
@@ -69,7 +98,7 @@ const metrics = getPerformanceMetrics();
 console.log(metrics); // Output your performance metrics 🧐
 ```
 
-## 📈 Tracking **all reports** at once (`🔧components` + `⚡️FCP`, `🕒TTI`, `📏LCP` & `📊CLS`)
+### 📈 Tracking **all reports** at once (`🔧components` + `⚡️FCP`, `🕒TTI`, `📏LCP` & `📊CLS`)
 
 ```svelte
   import { onMount } from 'svelte';
@@ -81,7 +110,8 @@ console.log(metrics); // Output your performance metrics 🧐
   });
 ```
 
-## ⚠️ Checking for all performance with custom threshold alerts
+### ⚠️ Checking for all performance with custom threshold alerts
+
 ```svelte
   import { onMount } from 'svelte';
   import { getPerformanceMetrics, checkPerformanceAlerts } from 'sveltick';
@@ -101,5 +131,18 @@ console.log(metrics); // Output your performance metrics 🧐
   });
 ```
 
+### 🎯 Checking the score of your web based by the performance
+
+```svelte
+  import { onMount } from 'sveltick';
+  import { provideFeedback } from 'sveltick';
+
+  onMount(() => {
+    // Run the gamification logic
+    provideFeedback();
+  });
+```
+
 ## 📜 License
+
 MIT ©️ Adam Stadnik
