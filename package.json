@@ -1,6 +1,6 @@
 {
   "name": "sveltick",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "⚡️ Sveltick: A lightweight, cool performance tracking library for Svelte apps!",
   "main": "dist/sveltick.cjs.js",
   "module": "dist/sveltick.es.js",
