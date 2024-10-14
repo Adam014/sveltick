@@ -94,6 +94,39 @@ function trackComponentRender(name, renderTime) {
   console.log(`🔧 Component ${name} rendered in ${renderTime.toFixed(2)} ms`);
 }
 
+// Performance Alert Function
+function checkPerformanceAlerts(thresholds = {}){
+ const {
+    fcp = 2000,  // Default: 2s for FCP
+    lcp = 2500,  // Default: 2.5s for LCP
+    tti = 3000,  // Default: 3s for TTI
+    cls = 0.1,   // Default: CLS should be below 0.1
+    componentRenderTime = 500 // Default: 500ms for component render time
+  } = thresholds;
+
+  if (performanceMetrics.firstContentfulPaint > fcp) {
+    console.warn(`⚠️ FCP of ${performanceMetrics.firstContentfulPaint} ms exceeded threshold of ${fcp} ms`);
+  }
+
+  if (performanceMetrics.largestContentfulPaint > lcp) {
+    console.warn(`⚠️ LCP of ${performanceMetrics.largestContentfulPaint} ms exceeded threshold of ${lcp} ms`);
+  }
+
+  if (performanceMetrics.timeToInteractive > tti) {
+    console.warn(`⚠️ TTI of ${performanceMetrics.timeToInteractive} ms exceeded threshold of ${tti} ms`);
+  }
+
+  if (performanceMetrics.cumulativeLayoutShift > cls) {
+    console.warn(`⚠️ CLS of ${performanceMetrics.cumulativeLayoutShift} exceeded threshold of ${cls}`);
+  }
+
+  performanceMetrics.componentRenderTimes.forEach(({ name, renderTime }) => {
+    if (renderTime > componentRenderTime) {
+      console.warn(`⚠️ Component ${name} render time of ${renderTime} ms exceeded threshold of ${componentRenderTime} ms`);
+    }
+  });
+}
+
 // Automatically rerun all tracking functions when calling getPerformanceMetrics
 async function getPerformanceMetrics() {
   await Promise.all([
@@ -111,5 +144,6 @@ export {
   trackTimeToInteractive, 
   trackLargestContentfulPaint,  
   trackCumulativeLayoutShift, 
-  trackComponentRender  
+  trackComponentRender,
+  checkPerformanceAlerts
 };

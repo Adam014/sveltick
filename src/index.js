@@ -5,6 +5,7 @@ import {
   trackLargestContentfulPaint,  
   trackCumulativeLayoutShift, 
   getPerformanceMetrics,
+  checkPerformanceAlerts
 } from './PerformanceTracker.js';
 
 export {
@@ -14,4 +15,5 @@ export {
   trackLargestContentfulPaint,  
   trackCumulativeLayoutShift, 
   getPerformanceMetrics,
+  checkPerformanceAlerts
 };
