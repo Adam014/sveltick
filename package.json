@@ -14,7 +14,7 @@
   "scripts": {
     "build": "rollup -c",
     "format": "prettier --plugin-search-dir . --write .",
-    "release": "npm run build && git add . && git commit -m \"build: new release\" && npm version patch && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes"
+    "release": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version patch && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.0",

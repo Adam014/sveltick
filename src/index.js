@@ -1,5 +1,5 @@
 import {
-  runPerformanceTracker, 
+  runPerformanceTracker,
   getPerformanceMetrics,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
@@ -12,7 +12,7 @@ import {
 } from './PerformanceTracker.js'
 
 export {
-  runPerformanceTracker, 
+  runPerformanceTracker,
   getPerformanceMetrics,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
