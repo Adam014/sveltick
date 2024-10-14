@@ -2,12 +2,13 @@
 
 Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps. Track important performance metrics like:
 
-## 🚀 New Version 1.3.3
+## 🚀 New Version 1.3.4
 
 - Providing a performance score based on how well the app meets the defined thresholds.
 - Offering feedback in a fun way, rewarding high scores and encouraging improvements for lower scores.
 - `runPerformanceTracker()` - main function that runs all the tracking, alerts, and gamification features.
 - Users can customize what they want to run through options like `trackMetrics`, `showAlerts`, and `enableGamification`.
+- Fixing error: `TypeError: Cannot read properties of undefined (reading 'message')`
 
 ## 📊 Metrics to check
 

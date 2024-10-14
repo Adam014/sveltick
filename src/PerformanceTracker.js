@@ -203,7 +203,7 @@ function provideFeedback(score) {
   ]
 
   const feedback = feedbackMap.find((fb) => score >= fb.threshold)
-  console.log(feedback.message)
+  console.log(feedback?.message)
 }
 
 // Automatically rerun all tracking functions when calling getPerformanceMetrics
