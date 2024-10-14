@@ -2,7 +2,7 @@
 
 Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps. Track important performance metrics like:
 
-## 🚀 New Version 1.3.0
+## 🚀 New Version 1.3.1
 
 - Providing a performance score based on how well the app meets the defined thresholds.
 - Offering feedback in a fun way, rewarding high scores and encouraging improvements for lower scores.
