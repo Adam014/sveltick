@@ -8,7 +8,7 @@ import {
   trackComponentRender,
   checkPerformanceAlerts,
   calculatePerformanceScore,
-  provideFeedback
+  runGamification
 } from './PerformanceTracker.js'
 
 export {
@@ -21,5 +21,5 @@ export {
   trackComponentRender,
   checkPerformanceAlerts,
   calculatePerformanceScore,
-  provideFeedback
+  runGamification
 }

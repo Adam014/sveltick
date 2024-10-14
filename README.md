@@ -2,7 +2,7 @@
 
 Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps. Track important performance metrics like:
 
-## 🚀 New Version 1.3.4
+## 🚀 New Version 1.3.5
 
 - Providing a performance score based on how well the app meets the defined thresholds.
 - Offering feedback in a fun way, rewarding high scores and encouraging improvements for lower scores.
@@ -136,11 +136,11 @@ console.log(metrics); // Output your performance metrics 🧐
 
 ```svelte
   import { onMount } from 'sveltick';
-  import { provideFeedback } from 'sveltick';
+  import { runGamification } from 'sveltick';
 
   onMount(() => {
     // Run the gamification logic
-    provideFeedback();
+    runGamification();
   });
 ```
 

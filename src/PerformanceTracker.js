@@ -206,6 +206,18 @@ function provideFeedback(score) {
   console.log(feedback?.message)
 }
 
+// Gamification - Run only gamification logic
+async function runGamification() {
+  // Gather the necessary performance metrics
+  await getPerformanceMetrics()
+
+  // Calculate the performance score
+  const score = calculatePerformanceScore()
+
+  // Provide feedback based on the score
+  provideFeedback(score)
+}
+
 // Automatically rerun all tracking functions when calling getPerformanceMetrics
 async function getPerformanceMetrics() {
   await Promise.all([
@@ -228,5 +240,5 @@ export {
   trackComponentRender,
   checkPerformanceAlerts,
   calculatePerformanceScore,
-  provideFeedback
+  runGamification
 }
