@@ -8,7 +8,7 @@ Example screenshot:
 
 For now it is just this simple console info about the project (of course you could implement it into something bigger!). But in the **upcoming days I will create a dashboard performance-tracking webapp for this library**, where you could use `Sveltick` from anywhere around the globe! So stay tuned guys!
 
-## 🚀 New Version 1.3.6
+## 🚀 New Version 1.3.7
 
 - Providing a performance score based on how well the app meets the defined thresholds.
 - Offering feedback in a fun way, rewarding high scores and encouraging improvements for lower scores.
