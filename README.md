@@ -1,28 +1,14 @@
 # ⚡️ Sveltick
 
-Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps. Track important performance metrics like: `⚡️First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest Contentful Paint` & `📊 Cumulative Layout
+Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps. Track important performance metrics like: `⚡️First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest Contentful Paint` & `📊 Cumulative Layout Shift`
 
-Example screenshot:
-
-![Sveltick Example](./assets/screenshot_sveltick.png)
-
-For now it is just this simple console info about the project (of course you could implement it into something bigger!). But in the **upcoming days I will create a dashboard performance-tracking webapp for this library**, where you could use `Sveltick` from anywhere around the globe! So stay tuned guys!
-
-## 🚀 New Version 1.3.7
+## 🚀 New Version 1.3.8
 
 - Providing a performance score based on how well the app meets the defined thresholds.
 - Offering feedback in a fun way, rewarding high scores and encouraging improvements for lower scores.
 - `runPerformanceTracker()` - main function that runs all the tracking, alerts, and gamification features.
 - Users can customize what they want to run through options like `trackMetrics`, `showAlerts`, and `enableGamification`.
 - Fixing error: `TypeError: Cannot read properties of undefined (reading 'message')`
-
-## 📊 Metrics to check
-
-- **First Contentful Paint** ⚡️
-- **Time to Interactive** 🕒
-- **Component Render Time** 🔧
-- **Largest Contentful Paint** 📏
-- **Cumulative Layout Shift** 📊
 
 ## 🚀 Installation
 
@@ -37,6 +23,14 @@ Install **Sveltick** via yarn:
 ```bash
 yarn add sveltick
 ```
+
+## 📊 Metrics to check
+
+- **First Contentful Paint** ⚡️
+- **Time to Interactive** 🕒
+- **Component Render Time** 🔧
+- **Largest Contentful Paint** 📏
+- **Cumulative Layout Shift** 📊
 
 ## 🔥 Quick Start
 
@@ -149,6 +143,12 @@ console.log(metrics); // Output your performance metrics 🧐
     runGamification();
   });
 ```
+
+Output example screenshot:
+
+![Sveltick Example](./assets/screenshot_sveltick.png)
+
+For now it is just this simple console info about the project (of course you could implement it into something bigger!). But in the **upcoming days I will create a dashboard performance-tracking webapp for this library**, where you could use `Sveltick` from anywhere around the globe! So stay tuned guys!
 
 ## 📜 License
 
