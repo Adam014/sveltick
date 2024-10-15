@@ -54,6 +54,7 @@ let performanceMetrics = {
   componentRenderTimes: []
 }
 
+// Track First Contentful Paint
 function trackFirstContentfulPaint() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
@@ -63,6 +64,7 @@ function trackFirstContentfulPaint() {
           performanceMetrics.firstContentfulPaint = entry.startTime
           console.log(`⚡️ First Contentful Paint: ${entry.startTime.toFixed(2)} ms`)
           resolve()
+          observer.disconnect() // Disconnect after first observation
         }
       })
       observer.observe({ type: 'paint', buffered: true })
@@ -72,6 +74,7 @@ function trackFirstContentfulPaint() {
   })
 }
 
+// Track Time to Interactive
 function trackTimeToInteractive() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined') {
@@ -94,15 +97,17 @@ function trackTimeToInteractive() {
   })
 }
 
+// Track Largest Contentful Paint
 function trackLargestContentfulPaint() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        const lastEntry = entries[entries.length - 1]
+        const lastEntry = entries[entries.length - 1] // Always get the last entry
         performanceMetrics.largestContentfulPaint = lastEntry.startTime
         console.log(`📏 Largest Contentful Paint: ${lastEntry.startTime.toFixed(2)} ms`)
         resolve()
+        observer.disconnect() // Disconnect after final observation
       })
       observer.observe({ type: 'largest-contentful-paint', buffered: true })
     } else {
@@ -111,6 +116,7 @@ function trackLargestContentfulPaint() {
   })
 }
 
+// Track Cumulative Layout Shift
 function trackCumulativeLayoutShift() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
@@ -124,6 +130,7 @@ function trackCumulativeLayoutShift() {
         performanceMetrics.cumulativeLayoutShift = clsValue
         console.log(`📊 Cumulative Layout Shift: ${clsValue.toFixed(4)}`)
         resolve()
+        observer.disconnect() // Disconnect after final observation
       })
       observer.observe({ type: 'layout-shift', buffered: true })
     } else {
@@ -154,12 +161,14 @@ function trackFirstInputDelay() {
 function trackInteractionToNextPaint() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined') {
-      window.addEventListener('click', (event) => {
+      const handleInteraction = (event) => {
         const inp = performance.now() - event.timeStamp
         performanceMetrics.interactionToNextPaint = inp
-        console.log(`🖱 Interaction to Next Paint: ${inp.toFixed(2)} ms`)
+        console.log(`🎨 Interaction to Next Paint: ${inp.toFixed(2)} ms`)
+        window.removeEventListener('click', handleInteraction)
         resolve()
-      })
+      }
+      window.addEventListener('click', handleInteraction)
     } else {
       resolve()
     }
