@@ -65,11 +65,12 @@ function trackFirstContentfulPaint() {
         if (entry) {
           performanceMetrics.firstContentfulPaint = entry.startTime
           console.log(`⚡️ First Contentful Paint: ${entry.startTime.toFixed(2)} ms`)
-          observer.disconnect() // Disconnect the observer after the first entry
           resolve()
+          observer.disconnect()
         }
       })
       observer.observe({ type: 'paint', buffered: true })
+      observers.push(observer)
     } else {
       resolve()
     }
@@ -79,18 +80,19 @@ function trackFirstContentfulPaint() {
 // Time to Interactive
 function trackTimeToInteractive() {
   return new Promise((resolve) => {
-    const setTTI = () => {
-      const tti = performance.now()
-      performanceMetrics.timeToInteractive = tti
-      console.log(`🕒 Time to Interactive: ${tti.toFixed(2)} ms`)
-      resolve()
-    }
-
     if (typeof window !== 'undefined') {
+      window.addEventListener('load', () => {
+        const tti = performance.now()
+        performanceMetrics.timeToInteractive = tti
+        console.log(`🕒 Time to Interactive: ${tti.toFixed(2)} ms`)
+        resolve()
+      })
+
       if (document.readyState === 'complete') {
-        setTTI()
-      } else {
-        window.addEventListener('load', setTTI)
+        const ttiFallback = performance.now()
+        performanceMetrics.timeToInteractive = ttiFallback
+        console.log(`🕒 Time to Interactive (Fallback): ${ttiFallback.toFixed(2)} ms`)
+        resolve()
       }
     } else {
       resolve()
@@ -104,13 +106,14 @@ function trackLargestContentfulPaint() {
     if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        const lastEntry = entries[entries.length - 1] // Get the last entry
+        const lastEntry = entries[entries.length - 1] // Always get the last entry
         performanceMetrics.largestContentfulPaint = lastEntry.startTime
         console.log(`📏 Largest Contentful Paint: ${lastEntry.startTime.toFixed(2)} ms`)
-        observer.disconnect() // Disconnect the observer
         resolve()
+        observer.disconnect()
       })
       observer.observe({ type: 'largest-contentful-paint', buffered: true })
+      observers.push(observer)
     } else {
       resolve()
     }
@@ -130,10 +133,11 @@ function trackCumulativeLayoutShift() {
         })
         performanceMetrics.cumulativeLayoutShift = clsValue
         console.log(`📊 Cumulative Layout Shift: ${clsValue.toFixed(4)}`)
-        observer.disconnect() // Disconnect after gathering data
         resolve()
+        observer.disconnect()
       })
       observer.observe({ type: 'layout-shift', buffered: true })
+      observers.push(observer)
     } else {
       resolve()
     }
@@ -151,9 +155,19 @@ function trackFirstInputDelay() {
         observer.disconnect()
         resolve()
       })
+
       observer.observe({ type: 'first-input', buffered: true })
+
+      // Fallback if no user input is captured within 5 seconds
+      setTimeout(() => {
+        if (performanceMetrics.firstInputDelay === null) {
+          performanceMetrics.firstInputDelay = 0 // Default value
+          console.log('⚠️ No First Input Delay captured, using default.')
+          resolve()
+        }
+      }, 5000)
     } else {
-      resolve()
+      resolve() // Resolve immediately in SSR or unsupported environments
     }
   })
 }
@@ -161,19 +175,25 @@ function trackFirstInputDelay() {
 // Track Interaction to Next Paint (INP)
 function trackInteractionToNextPaint() {
   return new Promise((resolve) => {
-    if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
-      const observer = new PerformanceObserver((list) => {
-        const entries = list.getEntries()
-        const lastEntry = entries[entries.length - 1]
-        performanceMetrics.interactionToNextPaint = lastEntry.startTime
-        console.log(`🎨 Interaction to Next Paint: ${lastEntry.startTime.toFixed(2)} ms`)
-        observer.disconnect()
-        resolve()
-      })
-      observer.observe({ type: 'event', buffered: true })
-    } else {
+    let interactionOccurred = false
+    const handleInteraction = (event) => {
+      const inp = performance.now() - event.timeStamp
+      performanceMetrics.interactionToNextPaint = inp
+      console.log(`🎨 Interaction to Next Paint: ${inp.toFixed(2)} ms`)
+      interactionOccurred = true
+      window.removeEventListener('click', handleInteraction)
       resolve()
     }
+
+    window.addEventListener('click', handleInteraction)
+
+    setTimeout(() => {
+      if (!interactionOccurred) {
+        performanceMetrics.interactionToNextPaint = null
+        console.log('⚠️ No interaction occurred, skipping INP tracking')
+        resolve()
+      }
+    }, 3000) // 3 second timeout as a fallback
   })
 }
 
@@ -199,7 +219,8 @@ function trackComponentRender(name, renderTime) {
 
 // Performance Alerts - Skip missing metrics
 function checkPerformanceAlerts(thresholds = {}) {
-  const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } = thresholds
+  const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } =
+    thresholds || defaultThresholds
 
   if (
     performanceMetrics.firstContentfulPaint != null &&
@@ -269,27 +290,13 @@ function calculatePerformanceScore() {
   let score = MAX_SCORE
 
   const metricDifferences = [
-    performanceMetrics.firstContentfulPaint != null
-      ? (performanceMetrics.firstContentfulPaint - defaultThresholds.fcp) / 100
-      : 0,
-    performanceMetrics.largestContentfulPaint != null
-      ? (performanceMetrics.largestContentfulPaint - defaultThresholds.lcp) / 100
-      : 0,
-    performanceMetrics.timeToInteractive != null
-      ? (performanceMetrics.timeToInteractive - defaultThresholds.tti) / 100
-      : 0,
-    performanceMetrics.cumulativeLayoutShift != null
-      ? (performanceMetrics.cumulativeLayoutShift - defaultThresholds.cls) * 100
-      : 0,
-    performanceMetrics.firstInputDelay != null
-      ? (performanceMetrics.firstInputDelay - defaultThresholds.fid) / 100
-      : 0,
-    performanceMetrics.interactionToNextPaint != null
-      ? (performanceMetrics.interactionToNextPaint - defaultThresholds.inp) / 100
-      : 0,
-    performanceMetrics.timeToFirstByte != null
-      ? (performanceMetrics.timeToFirstByte - defaultThresholds.ttfb) / 100
-      : 0
+    (performanceMetrics.firstContentfulPaint - defaultThresholds.fcp) / 100,
+    (performanceMetrics.largestContentfulPaint - defaultThresholds.lcp) / 100,
+    (performanceMetrics.timeToInteractive - defaultThresholds.tti) / 100,
+    (performanceMetrics.cumulativeLayoutShift - defaultThresholds.cls) * 100,
+    (performanceMetrics.firstInputDelay - defaultThresholds.fid) / 100,
+    (performanceMetrics.interactionToNextPaint - defaultThresholds.inp) / 100,
+    (performanceMetrics.timeToFirstByte - defaultThresholds.ttfb) / 100
   ]
 
   metricDifferences.forEach((diff) => {
@@ -324,7 +331,7 @@ function provideFeedback(score) {
 
 // Run Gamification
 async function runGamification() {
-  await getPerformanceMetrics()
+  await getPerformanceMetrics() // Ensure metrics are gathered first
   const score = calculatePerformanceScore()
   provideFeedback(score)
 }

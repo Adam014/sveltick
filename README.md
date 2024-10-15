@@ -2,11 +2,12 @@
 
 Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps.
 
-## 🚀 New Version 1.4.4
+## 🚀 New Version 1.5.0
 
 - Implementing new metrics: `First Input Delay (FID)`, `Interaction to Next Paint (INP)` & `Time to First Byte (TTFB)`
 - Better documentation with notes for optional `threshold`
 - Fixing bugs with not running functions
+- Adding when there is not tracked INP & FID after 5s, it will be null.
 
 ## 🚀 Installation
 
@@ -110,15 +111,6 @@ The `thresholds` object is optional, and each metric has a default value. If you
 ### 🛠 Performance Report
 
 You can access all performance metrics at any point using:
-
-```svelte
-import { getPerformanceMetrics } from 'sveltick';
-
-const metrics = getPerformanceMetrics();
-console.log(metrics); // Output your performance metrics 🧐
-```
-
-### 📈 Tracking **all reports** at once
 
 ```svelte
   import { onMount } from 'svelte';
