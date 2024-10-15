@@ -4,7 +4,7 @@ Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tr
 
 ✅ **v5 Svelte support**
 
-## 🚀 New Version 1.5.3
+## 🚀 New Version 1.5.4
 
 - Implementing new metrics: `First Input Delay (FID)`, `Interaction to Next Paint (INP)` & `Time to First Byte (TTFB)`
 - Better documentation with notes for optional `threshold` and FID & INP
@@ -44,7 +44,7 @@ Import **Sveltick** into your Svelte app and start tracking your app's performan
 ### 📈 Track **everything** you need and configure what metrics you want to see
 
 ```svelte
-  import { onMount } from 'sveltick';
+  import { onMount } from 'svelte';
   import { runPerformanceTracker } from 'sveltick';
 
   onMount(() => {
@@ -152,7 +152,7 @@ You can access all performance metrics at any point using:
 ### 🎯 Checking the score of your web based by the performance
 
 ```svelte
-  import { onMount } from 'sveltick';
+  import { onMount } from 'svelte';
   import { runGamification } from 'sveltick';
 
   onMount(() => {
