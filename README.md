@@ -2,10 +2,10 @@
 
 Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps.
 
-## 🚀 New Version 1.5.1
+## 🚀 New Version 1.5.2
 
 - Implementing new metrics: `First Input Delay (FID)`, `Interaction to Next Paint (INP)` & `Time to First Byte (TTFB)`
-- Better documentation with notes for optional `threshold`
+- Better documentation with notes for optional `threshold` and FID & INP
 - Fixing bugs with not running functions
 - Adding when there is not tracked INP & FID after 5s, it will be null.
 - Fixing observers are null
@@ -31,8 +31,8 @@ yarn add sveltick
 - **Component Render Time** 🔧
 - **Largest Contentful Paint** 📏
 - **Cumulative Layout Shift** 📊
-- **First Input Delay** 🖱️
-- **Interaction to Next Paint** 🖌️
+- **First Input Delay** 🖱️ _(Click-based)_
+- **Interaction to Next Paint** 🖌️ _(Click-based)_
 - **Time to First Byte** 📡
 
 ## 🔥 Quick Start
@@ -72,8 +72,8 @@ The `thresholds` object is optional, and each metric has a default value. If you
 - Largest Contentful Paint (LCP): 2500ms
 - Time to Interactive (TTI): 3000ms
 - Cumulative Layout Shift (CLS): 0.1
-- First Input Delay (FID): 100ms
-- Interaction to Next Paint (INP): 200ms
+- First Input Delay (FID): 100ms _(User must interact with the page to track this metric)_
+- Interaction to Next Paint (INP): 200ms _(User must interact with the page to track this metric)_
 - Time to First Byte (TTFB): 800ms
 - Component Render Time: 500ms
 
@@ -158,6 +158,13 @@ You can access all performance metrics at any point using:
     runGamification();
   });
 ```
+
+#### 🖱️ First Input Delay (FID) & 🖌️ Interaction to Next Paint (INP)
+
+📌 Note:
+
+- FID and INP metrics are triggered by user interactions like clicks. These metrics depend on actual user interaction events.
+- If no interaction occurs within 5 seconds, the FID and INP values will be set to null and won't impact the performance alerts or gamification score.
 
 Output example screenshot:
 
