@@ -54,6 +54,9 @@ let performanceMetrics = {
   componentRenderTimes: []
 }
 
+// Ensure that all observers and event listeners disconnect when no longer needed
+let observers = []
+
 // Core Tracker Functions
 
 // First Contentful Paint
