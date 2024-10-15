@@ -2,7 +2,7 @@
 
 Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps.
 
-## 🚀 New Version 1.4.2
+## 🚀 New Version 1.4.3
 
 - Implementing new metrics: `First Input Delay (FID)`, `Interaction to Next Paint (INP)` & `Time to First Byte (TTFB)`
 - Better documentation with notes for optional `threshold`

@@ -12,6 +12,18 @@ const defaultThresholds = {
 
 const MAX_SCORE = 100
 
+// Tracking Metrics Data
+let performanceMetrics = {
+  firstContentfulPaint: null,
+  timeToInteractive: null,
+  largestContentfulPaint: null,
+  cumulativeLayoutShift: 0,
+  firstInputDelay: null,
+  interactionToNextPaint: null,
+  timeToFirstByte: null,
+  componentRenderTimes: []
+}
+
 // All-in-One Main Function with Presets
 async function runPerformanceTracker(options = {}) {
   const {
@@ -42,19 +54,9 @@ async function runPerformanceTracker(options = {}) {
   }
 }
 
-// Tracking Functions
-let performanceMetrics = {
-  firstContentfulPaint: null,
-  timeToInteractive: null,
-  largestContentfulPaint: null,
-  cumulativeLayoutShift: 0,
-  firstInputDelay: null,
-  interactionToNextPaint: null,
-  timeToFirstByte: null,
-  componentRenderTimes: []
-}
+// Core Tracker Functions
 
-// Track First Contentful Paint
+// First Contentful Paint
 function trackFirstContentfulPaint() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
@@ -63,8 +65,8 @@ function trackFirstContentfulPaint() {
         if (entry) {
           performanceMetrics.firstContentfulPaint = entry.startTime
           console.log(`⚡️ First Contentful Paint: ${entry.startTime.toFixed(2)} ms`)
+          observer.disconnect() // Disconnect the observer after the first entry
           resolve()
-          observer.disconnect() // Disconnect after first observation
         }
       })
       observer.observe({ type: 'paint', buffered: true })
@@ -74,22 +76,21 @@ function trackFirstContentfulPaint() {
   })
 }
 
-// Track Time to Interactive
+// Time to Interactive
 function trackTimeToInteractive() {
   return new Promise((resolve) => {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('load', () => {
-        const tti = performance.now()
-        performanceMetrics.timeToInteractive = tti
-        console.log(`🕒 Time to Interactive: ${tti.toFixed(2)} ms`)
-        resolve()
-      })
+    const setTTI = () => {
+      const tti = performance.now()
+      performanceMetrics.timeToInteractive = tti
+      console.log(`🕒 Time to Interactive: ${tti.toFixed(2)} ms`)
+      resolve()
+    }
 
+    if (typeof window !== 'undefined') {
       if (document.readyState === 'complete') {
-        const ttiFallback = performance.now()
-        performanceMetrics.timeToInteractive = ttiFallback
-        console.log(`🕒 Time to Interactive (Fallback): ${ttiFallback.toFixed(2)} ms`)
-        resolve()
+        setTTI()
+      } else {
+        window.addEventListener('load', setTTI)
       }
     } else {
       resolve()
@@ -97,17 +98,17 @@ function trackTimeToInteractive() {
   })
 }
 
-// Track Largest Contentful Paint
+// Largest Contentful Paint
 function trackLargestContentfulPaint() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        const lastEntry = entries[entries.length - 1] // Always get the last entry
+        const lastEntry = entries[entries.length - 1] // Get the last entry
         performanceMetrics.largestContentfulPaint = lastEntry.startTime
         console.log(`📏 Largest Contentful Paint: ${lastEntry.startTime.toFixed(2)} ms`)
+        observer.disconnect() // Disconnect the observer
         resolve()
-        observer.disconnect() // Disconnect after final observation
       })
       observer.observe({ type: 'largest-contentful-paint', buffered: true })
     } else {
@@ -116,7 +117,7 @@ function trackLargestContentfulPaint() {
   })
 }
 
-// Track Cumulative Layout Shift
+// Cumulative Layout Shift
 function trackCumulativeLayoutShift() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
@@ -129,8 +130,8 @@ function trackCumulativeLayoutShift() {
         })
         performanceMetrics.cumulativeLayoutShift = clsValue
         console.log(`📊 Cumulative Layout Shift: ${clsValue.toFixed(4)}`)
+        observer.disconnect() // Disconnect after gathering data
         resolve()
-        observer.disconnect() // Disconnect after final observation
       })
       observer.observe({ type: 'layout-shift', buffered: true })
     } else {
@@ -139,7 +140,7 @@ function trackCumulativeLayoutShift() {
   })
 }
 
-// Track First Input Delay (FID)
+// First Input Delay (FID)
 function trackFirstInputDelay() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined') {
@@ -157,7 +158,7 @@ function trackFirstInputDelay() {
   })
 }
 
-// Track Interaction to Next Paint (INP)
+// Interaction to Next Paint (INP)
 function trackInteractionToNextPaint() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined') {
@@ -175,7 +176,7 @@ function trackInteractionToNextPaint() {
   })
 }
 
-// Track Time to First Byte (TTFB)
+// Time to First Byte (TTFB)
 function trackTimeToFirstByte() {
   return new Promise((resolve) => {
     if (typeof window !== 'undefined') {
@@ -189,6 +190,7 @@ function trackTimeToFirstByte() {
   })
 }
 
+// Track Component Render Times
 function trackComponentRender(name, renderTime) {
   performanceMetrics.componentRenderTimes.push({ name, renderTime })
   console.log(`🔧 Component ${name} rendered in ${renderTime.toFixed(2)} ms`)
@@ -199,52 +201,30 @@ function checkPerformanceAlerts(thresholds = {}) {
   const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } = thresholds
 
   if (performanceMetrics.firstContentfulPaint > fcp) {
-    console.warn(
-      `⚠️ FCP of ${performanceMetrics.firstContentfulPaint} ms exceeded threshold of ${fcp} ms`
-    )
+    console.warn(`⚠️ FCP of ${performanceMetrics.firstContentfulPaint} ms exceeded ${fcp} ms`)
   }
-
   if (performanceMetrics.largestContentfulPaint > lcp) {
-    console.warn(
-      `⚠️ LCP of ${performanceMetrics.largestContentfulPaint} ms exceeded threshold of ${lcp} ms`
-    )
+    console.warn(`⚠️ LCP of ${performanceMetrics.largestContentfulPaint} ms exceeded ${lcp} ms`)
   }
-
   if (performanceMetrics.timeToInteractive > tti) {
-    console.warn(
-      `⚠️ TTI of ${performanceMetrics.timeToInteractive} ms exceeded threshold of ${tti} ms`
-    )
+    console.warn(`⚠️ TTI of ${performanceMetrics.timeToInteractive} ms exceeded ${tti} ms`)
   }
-
   if (performanceMetrics.cumulativeLayoutShift > cls) {
-    console.warn(
-      `⚠️ CLS of ${performanceMetrics.cumulativeLayoutShift} exceeded threshold of ${cls}`
-    )
+    console.warn(`⚠️ CLS of ${performanceMetrics.cumulativeLayoutShift} exceeded ${cls}`)
   }
-
   if (performanceMetrics.firstInputDelay > fid) {
-    console.warn(
-      `⚠️ FID of ${performanceMetrics.firstInputDelay} ms exceeded threshold of ${fid} ms`
-    )
+    console.warn(`⚠️ FID of ${performanceMetrics.firstInputDelay} ms exceeded ${fid} ms`)
   }
-
   if (performanceMetrics.interactionToNextPaint > inp) {
-    console.warn(
-      `⚠️ INP of ${performanceMetrics.interactionToNextPaint} ms exceeded threshold of ${inp} ms`
-    )
+    console.warn(`⚠️ INP of ${performanceMetrics.interactionToNextPaint} ms exceeded ${inp} ms`)
   }
-
   if (performanceMetrics.timeToFirstByte > ttfb) {
-    console.warn(
-      `⚠️ TTFB of ${performanceMetrics.timeToFirstByte} ms exceeded threshold of ${ttfb} ms`
-    )
+    console.warn(`⚠️ TTFB of ${performanceMetrics.timeToFirstByte} ms exceeded ${ttfb} ms`)
   }
 
   performanceMetrics.componentRenderTimes.forEach(({ name, renderTime }) => {
     if (renderTime > componentRenderTime) {
-      console.warn(
-        `⚠️ Component ${name} render time of ${renderTime} ms exceeded threshold of ${componentRenderTime} ms`
-      )
+      console.warn(`⚠️ Component ${name} render time exceeded ${componentRenderTime} ms`)
     }
   })
 }
@@ -272,9 +252,10 @@ function calculatePerformanceScore() {
     if (diff > 0) score -= diff
   })
 
-  return Math.max(0, Math.round(score)) // Ensure score doesn't go below 0
+  return Math.max(0, Math.round(score))
 }
 
+// Provide Feedback
 function provideFeedback(score) {
   const feedbackMap = [
     { threshold: 90, message: `🏆 Excellent! Your score is ${score}/100. Keep up the great work!` },
@@ -292,15 +273,10 @@ function provideFeedback(score) {
   console.log(feedback?.message)
 }
 
-// Gamification - Run only gamification logic
+// Run Gamification
 async function runGamification() {
-  // Gather the necessary performance metrics
   await getPerformanceMetrics()
-
-  // Calculate the performance score
   const score = calculatePerformanceScore()
-
-  // Provide feedback based on the score
   provideFeedback(score)
 }
 
