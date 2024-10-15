@@ -1,14 +1,10 @@
 # ⚡️ Sveltick
 
-Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps. Track important performance metrics like: `⚡️First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest Contentful Paint` & `📊 Cumulative Layout Shift`
+Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps.
 
-## 🚀 New Version 1.3.9
+## 🚀 New Version 1.4.0
 
-- Providing a performance score based on how well the app meets the defined thresholds.
-- Offering feedback in a fun way, rewarding high scores and encouraging improvements for lower scores.
-- `runPerformanceTracker()` - main function that runs all the tracking, alerts, and gamification features.
-- Users can customize what they want to run through options like `trackMetrics`, `showAlerts`, and `enableGamification`.
-- Fixing error: `TypeError: Cannot read properties of undefined (reading 'message')`
+- Implementing new metrics: `First Input Delay (FID)`, `Interaction to Next Paint (INP)` & `Time to First Byte (TTFB)`
 
 ## 🚀 Installation
 
@@ -31,6 +27,9 @@ yarn add sveltick
 - **Component Render Time** 🔧
 - **Largest Contentful Paint** 📏
 - **Cumulative Layout Shift** 📊
+- **First Input Delay** 🖱️
+- **Interaction to Next Paint** 🖌️
+- **Time to First Byte** 📡
 
 ## 🔥 Quick Start
 
@@ -53,6 +52,9 @@ Import **Sveltick** into your Svelte app and start tracking your app's performan
         lcp: 2300,  // Custom threshold for LCP
         tti: 2800,  // Custom threshold for TTI
         cls: 0.15,  // Custom threshold for CLS
+        fid: 100, // Custom threshold for FID
+        inp: 200, // Custom threshold for INP
+        ttfb: 800, // Custom threshold for TTFB
         componentRenderTime: 400 // Custom threshold for component render time
       }
     });
@@ -64,7 +66,7 @@ Import **Sveltick** into your Svelte app and start tracking your app's performan
 ```svelte
 <script>
   import { onMount } from 'svelte';
-  import { trackFirstContentfulPaint, trackTimeToInteractive, trackLargestContentfulPaint, trackCumulativeLayoutShift } from 'sveltick';
+  import { trackFirstContentfulPaint, trackTimeToInteractive, trackLargestContentfulPaint, trackCumulativeLayoutShift, trackFirstInputDelay, trackInteractionToNextPaint, trackTimeToFirstByte } from 'sveltick';
 
   onMount(() => {
     // Track metrics
@@ -72,6 +74,9 @@ Import **Sveltick** into your Svelte app and start tracking your app's performan
     trackTimeToInteractive();
     trackLargestContentfulPaint();
     trackCumulativeLayoutShift();
+    trackFirstInputDelay();
+    trackInteractionToNextPaint();
+    trackTimeToFirstByte();
   });
 </script>
 ```
@@ -99,7 +104,7 @@ const metrics = getPerformanceMetrics();
 console.log(metrics); // Output your performance metrics 🧐
 ```
 
-### 📈 Tracking **all reports** at once (`🔧components` + `⚡️FCP`, `🕒TTI`, `📏LCP` & `📊CLS`)
+### 📈 Tracking **all reports** at once
 
 ```svelte
   import { onMount } from 'svelte';
@@ -127,6 +132,9 @@ console.log(metrics); // Output your performance metrics 🧐
       lcp: 2300,  // Custom threshold for LCP
       tti: 2800,  // Custom threshold for TTI
       cls: 0.15,  // Custom threshold for CLS
+      fid: 100, // Custom threshold for FID
+      inp: 200, // Custom threshold for INP
+      ttfb: 800, // Custom threshold for TTFB
       componentRenderTime: 400 // Custom threshold for component render time
     });
   });

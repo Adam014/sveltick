@@ -1,10 +1,13 @@
 import {
-  runPerformanceTracker,
-  getPerformanceMetrics,
+  runPerformanceTracker, // All-in-one function
+  getPerformanceMetrics, // Track metrics manually
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackLargestContentfulPaint,
   trackCumulativeLayoutShift,
+  trackFirstInputDelay,
+  trackInteractionToNextPaint,
+  trackTimeToFirstByte,
   trackComponentRender,
   checkPerformanceAlerts,
   calculatePerformanceScore,
@@ -12,12 +15,15 @@ import {
 } from './PerformanceTracker.js'
 
 export {
-  runPerformanceTracker,
-  getPerformanceMetrics,
+  runPerformanceTracker, // All-in-one function
+  getPerformanceMetrics, // Track metrics manually
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackLargestContentfulPaint,
   trackCumulativeLayoutShift,
+  trackFirstInputDelay,
+  trackInteractionToNextPaint,
+  trackTimeToFirstByte,
   trackComponentRender,
   checkPerformanceAlerts,
   calculatePerformanceScore,

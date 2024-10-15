@@ -4,6 +4,9 @@ const defaultThresholds = {
   lcp: 2500, // Default: 2.5s for LCP
   tti: 3000, // Default: 3s for TTI
   cls: 0.1, // Default: CLS should be below 0.1
+  fid: 100, // Default: 100ms for FID
+  inp: 200, // Default: 200ms for INP
+  ttfb: 800, // Default: 800ms for TTFB
   componentRenderTime: 500 // Default: 500ms for component render time
 }
 
@@ -39,12 +42,15 @@ async function runPerformanceTracker(options = {}) {
   }
 }
 
-// Tracking Functions (same as before)
+// Tracking Functions
 let performanceMetrics = {
   firstContentfulPaint: null,
   timeToInteractive: null,
   largestContentfulPaint: null,
   cumulativeLayoutShift: 0,
+  firstInputDelay: null,
+  interactionToNextPaint: null,
+  timeToFirstByte: null,
   componentRenderTimes: []
 }
 
@@ -126,13 +132,62 @@ function trackCumulativeLayoutShift() {
   })
 }
 
+// Track First Input Delay (FID)
+function trackFirstInputDelay() {
+  return new Promise((resolve) => {
+    if (typeof window !== 'undefined') {
+      const handleUserInteraction = (event) => {
+        const delay = event.timeStamp
+        performanceMetrics.firstInputDelay = delay
+        console.log(`🖱 First Input Delay: ${delay.toFixed(2)} ms`)
+        window.removeEventListener('pointerdown', handleUserInteraction)
+        resolve()
+      }
+      window.addEventListener('pointerdown', handleUserInteraction)
+    } else {
+      resolve()
+    }
+  })
+}
+
+// Track Interaction to Next Paint (INP)
+function trackInteractionToNextPaint() {
+  return new Promise((resolve) => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('click', (event) => {
+        const inp = performance.now() - event.timeStamp
+        performanceMetrics.interactionToNextPaint = inp
+        console.log(`🖱 Interaction to Next Paint: ${inp.toFixed(2)} ms`)
+        resolve()
+      })
+    } else {
+      resolve()
+    }
+  })
+}
+
+// Track Time to First Byte (TTFB)
+function trackTimeToFirstByte() {
+  return new Promise((resolve) => {
+    if (typeof window !== 'undefined') {
+      const ttfb = performance.timing.responseStart - performance.timing.requestStart
+      performanceMetrics.timeToFirstByte = ttfb
+      console.log(`⏳ Time to First Byte: ${ttfb.toFixed(2)} ms`)
+      resolve()
+    } else {
+      resolve()
+    }
+  })
+}
+
 function trackComponentRender(name, renderTime) {
   performanceMetrics.componentRenderTimes.push({ name, renderTime })
   console.log(`🔧 Component ${name} rendered in ${renderTime.toFixed(2)} ms`)
 }
 
+// Performance Alerts
 function checkPerformanceAlerts(thresholds = {}) {
-  const { fcp, lcp, tti, cls, componentRenderTime } = thresholds
+  const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } = thresholds
 
   if (performanceMetrics.firstContentfulPaint > fcp) {
     console.warn(
@@ -158,6 +213,24 @@ function checkPerformanceAlerts(thresholds = {}) {
     )
   }
 
+  if (performanceMetrics.firstInputDelay > fid) {
+    console.warn(
+      `⚠️ FID of ${performanceMetrics.firstInputDelay} ms exceeded threshold of ${fid} ms`
+    )
+  }
+
+  if (performanceMetrics.interactionToNextPaint > inp) {
+    console.warn(
+      `⚠️ INP of ${performanceMetrics.interactionToNextPaint} ms exceeded threshold of ${inp} ms`
+    )
+  }
+
+  if (performanceMetrics.timeToFirstByte > ttfb) {
+    console.warn(
+      `⚠️ TTFB of ${performanceMetrics.timeToFirstByte} ms exceeded threshold of ${ttfb} ms`
+    )
+  }
+
   performanceMetrics.componentRenderTimes.forEach(({ name, renderTime }) => {
     if (renderTime > componentRenderTime) {
       console.warn(
@@ -167,6 +240,7 @@ function checkPerformanceAlerts(thresholds = {}) {
   })
 }
 
+// Calculate Performance Score
 function calculatePerformanceScore() {
   let score = MAX_SCORE
 
@@ -174,7 +248,10 @@ function calculatePerformanceScore() {
     (performanceMetrics.firstContentfulPaint - defaultThresholds.fcp) / 100,
     (performanceMetrics.largestContentfulPaint - defaultThresholds.lcp) / 100,
     (performanceMetrics.timeToInteractive - defaultThresholds.tti) / 100,
-    (performanceMetrics.cumulativeLayoutShift - defaultThresholds.cls) * 100
+    (performanceMetrics.cumulativeLayoutShift - defaultThresholds.cls) * 100,
+    (performanceMetrics.firstInputDelay - defaultThresholds.fid) / 100,
+    (performanceMetrics.interactionToNextPaint - defaultThresholds.inp) / 100,
+    (performanceMetrics.timeToFirstByte - defaultThresholds.ttfb) / 100
   ]
 
   metricDifferences.forEach((diff) => {
@@ -224,7 +301,10 @@ async function getPerformanceMetrics() {
     trackFirstContentfulPaint(),
     trackTimeToInteractive(),
     trackLargestContentfulPaint(),
-    trackCumulativeLayoutShift()
+    trackCumulativeLayoutShift(),
+    trackFirstInputDelay(),
+    trackInteractionToNextPaint(),
+    trackTimeToFirstByte()
   ])
   return performanceMetrics
 }
@@ -237,6 +317,9 @@ export {
   trackTimeToInteractive,
   trackLargestContentfulPaint,
   trackCumulativeLayoutShift,
+  trackFirstInputDelay,
+  trackInteractionToNextPaint,
+  trackTimeToFirstByte,
   trackComponentRender,
   checkPerformanceAlerts,
   calculatePerformanceScore,
