@@ -12,18 +12,6 @@ const defaultThresholds = {
 
 const MAX_SCORE = 100
 
-// Tracking Metrics Data
-let performanceMetrics = {
-  firstContentfulPaint: null,
-  timeToInteractive: null,
-  largestContentfulPaint: null,
-  cumulativeLayoutShift: 0,
-  firstInputDelay: null,
-  interactionToNextPaint: null,
-  timeToFirstByte: null,
-  componentRenderTimes: []
-}
-
 // All-in-One Main Function with Presets
 async function runPerformanceTracker(options = {}) {
   const {
@@ -52,6 +40,18 @@ async function runPerformanceTracker(options = {}) {
     const score = calculatePerformanceScore()
     provideFeedback(score)
   }
+}
+
+// Tracking Metrics Data
+let performanceMetrics = {
+  firstContentfulPaint: null,
+  timeToInteractive: null,
+  largestContentfulPaint: null,
+  cumulativeLayoutShift: 0,
+  firstInputDelay: null,
+  interactionToNextPaint: null,
+  timeToFirstByte: null,
+  componentRenderTimes: []
 }
 
 // Core Tracker Functions
@@ -140,36 +140,37 @@ function trackCumulativeLayoutShift() {
   })
 }
 
-// First Input Delay (FID)
+// Track First Input Delay (FID)
 function trackFirstInputDelay() {
   return new Promise((resolve) => {
-    if (typeof window !== 'undefined') {
-      const handleUserInteraction = (event) => {
-        const delay = event.timeStamp
-        performanceMetrics.firstInputDelay = delay
-        console.log(`🖱 First Input Delay: ${delay.toFixed(2)} ms`)
-        window.removeEventListener('pointerdown', handleUserInteraction)
+    if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
+      const observer = new PerformanceObserver((list) => {
+        const firstEntry = list.getEntries()[0]
+        performanceMetrics.firstInputDelay = firstEntry.processingStart - firstEntry.startTime
+        console.log(`🖱 First Input Delay: ${performanceMetrics.firstInputDelay.toFixed(2)} ms`)
+        observer.disconnect()
         resolve()
-      }
-      window.addEventListener('pointerdown', handleUserInteraction)
+      })
+      observer.observe({ type: 'first-input', buffered: true })
     } else {
       resolve()
     }
   })
 }
 
-// Interaction to Next Paint (INP)
+// Track Interaction to Next Paint (INP)
 function trackInteractionToNextPaint() {
   return new Promise((resolve) => {
-    if (typeof window !== 'undefined') {
-      const handleInteraction = (event) => {
-        const inp = performance.now() - event.timeStamp
-        performanceMetrics.interactionToNextPaint = inp
-        console.log(`🎨 Interaction to Next Paint: ${inp.toFixed(2)} ms`)
-        window.removeEventListener('click', handleInteraction)
+    if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
+      const observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries()
+        const lastEntry = entries[entries.length - 1]
+        performanceMetrics.interactionToNextPaint = lastEntry.startTime
+        console.log(`🎨 Interaction to Next Paint: ${lastEntry.startTime.toFixed(2)} ms`)
+        observer.disconnect()
         resolve()
-      }
-      window.addEventListener('click', handleInteraction)
+      })
+      observer.observe({ type: 'event', buffered: true })
     } else {
       resolve()
     }
@@ -196,51 +197,99 @@ function trackComponentRender(name, renderTime) {
   console.log(`🔧 Component ${name} rendered in ${renderTime.toFixed(2)} ms`)
 }
 
-// Performance Alerts
+// Performance Alerts - Skip missing metrics
 function checkPerformanceAlerts(thresholds = {}) {
   const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } = thresholds
 
-  if (performanceMetrics.firstContentfulPaint > fcp) {
-    console.warn(`⚠️ FCP of ${performanceMetrics.firstContentfulPaint} ms exceeded ${fcp} ms`)
+  if (
+    performanceMetrics.firstContentfulPaint != null &&
+    performanceMetrics.firstContentfulPaint > fcp
+  ) {
+    console.warn(
+      `⚠️ FCP of ${performanceMetrics.firstContentfulPaint} ms exceeded threshold of ${fcp} ms`
+    )
   }
-  if (performanceMetrics.largestContentfulPaint > lcp) {
-    console.warn(`⚠️ LCP of ${performanceMetrics.largestContentfulPaint} ms exceeded ${lcp} ms`)
+
+  if (
+    performanceMetrics.largestContentfulPaint != null &&
+    performanceMetrics.largestContentfulPaint > lcp
+  ) {
+    console.warn(
+      `⚠️ LCP of ${performanceMetrics.largestContentfulPaint} ms exceeded threshold of ${lcp} ms`
+    )
   }
-  if (performanceMetrics.timeToInteractive > tti) {
-    console.warn(`⚠️ TTI of ${performanceMetrics.timeToInteractive} ms exceeded ${tti} ms`)
+
+  if (performanceMetrics.timeToInteractive != null && performanceMetrics.timeToInteractive > tti) {
+    console.warn(
+      `⚠️ TTI of ${performanceMetrics.timeToInteractive} ms exceeded threshold of ${tti} ms`
+    )
   }
-  if (performanceMetrics.cumulativeLayoutShift > cls) {
-    console.warn(`⚠️ CLS of ${performanceMetrics.cumulativeLayoutShift} exceeded ${cls}`)
+
+  if (
+    performanceMetrics.cumulativeLayoutShift != null &&
+    performanceMetrics.cumulativeLayoutShift > cls
+  ) {
+    console.warn(
+      `⚠️ CLS of ${performanceMetrics.cumulativeLayoutShift} exceeded threshold of ${cls}`
+    )
   }
-  if (performanceMetrics.firstInputDelay > fid) {
-    console.warn(`⚠️ FID of ${performanceMetrics.firstInputDelay} ms exceeded ${fid} ms`)
+
+  if (performanceMetrics.firstInputDelay != null && performanceMetrics.firstInputDelay > fid) {
+    console.warn(
+      `⚠️ FID of ${performanceMetrics.firstInputDelay} ms exceeded threshold of ${fid} ms`
+    )
   }
-  if (performanceMetrics.interactionToNextPaint > inp) {
-    console.warn(`⚠️ INP of ${performanceMetrics.interactionToNextPaint} ms exceeded ${inp} ms`)
+
+  if (
+    performanceMetrics.interactionToNextPaint != null &&
+    performanceMetrics.interactionToNextPaint > inp
+  ) {
+    console.warn(
+      `⚠️ INP of ${performanceMetrics.interactionToNextPaint} ms exceeded threshold of ${inp} ms`
+    )
   }
-  if (performanceMetrics.timeToFirstByte > ttfb) {
-    console.warn(`⚠️ TTFB of ${performanceMetrics.timeToFirstByte} ms exceeded ${ttfb} ms`)
+
+  if (performanceMetrics.timeToFirstByte != null && performanceMetrics.timeToFirstByte > ttfb) {
+    console.warn(
+      `⚠️ TTFB of ${performanceMetrics.timeToFirstByte} ms exceeded threshold of ${ttfb} ms`
+    )
   }
 
   performanceMetrics.componentRenderTimes.forEach(({ name, renderTime }) => {
     if (renderTime > componentRenderTime) {
-      console.warn(`⚠️ Component ${name} render time exceeded ${componentRenderTime} ms`)
+      console.warn(
+        `⚠️ Component ${name} render time of ${renderTime} ms exceeded threshold of ${componentRenderTime} ms`
+      )
     }
   })
 }
 
-// Calculate Performance Score
+// Calculate Performance Score - Skip missing metrics
 function calculatePerformanceScore() {
   let score = MAX_SCORE
 
   const metricDifferences = [
-    (performanceMetrics.firstContentfulPaint - defaultThresholds.fcp) / 100,
-    (performanceMetrics.largestContentfulPaint - defaultThresholds.lcp) / 100,
-    (performanceMetrics.timeToInteractive - defaultThresholds.tti) / 100,
-    (performanceMetrics.cumulativeLayoutShift - defaultThresholds.cls) * 100,
-    (performanceMetrics.firstInputDelay - defaultThresholds.fid) / 100,
-    (performanceMetrics.interactionToNextPaint - defaultThresholds.inp) / 100,
-    (performanceMetrics.timeToFirstByte - defaultThresholds.ttfb) / 100
+    performanceMetrics.firstContentfulPaint != null
+      ? (performanceMetrics.firstContentfulPaint - defaultThresholds.fcp) / 100
+      : 0,
+    performanceMetrics.largestContentfulPaint != null
+      ? (performanceMetrics.largestContentfulPaint - defaultThresholds.lcp) / 100
+      : 0,
+    performanceMetrics.timeToInteractive != null
+      ? (performanceMetrics.timeToInteractive - defaultThresholds.tti) / 100
+      : 0,
+    performanceMetrics.cumulativeLayoutShift != null
+      ? (performanceMetrics.cumulativeLayoutShift - defaultThresholds.cls) * 100
+      : 0,
+    performanceMetrics.firstInputDelay != null
+      ? (performanceMetrics.firstInputDelay - defaultThresholds.fid) / 100
+      : 0,
+    performanceMetrics.interactionToNextPaint != null
+      ? (performanceMetrics.interactionToNextPaint - defaultThresholds.inp) / 100
+      : 0,
+    performanceMetrics.timeToFirstByte != null
+      ? (performanceMetrics.timeToFirstByte - defaultThresholds.ttfb) / 100
+      : 0
   ]
 
   metricDifferences.forEach((diff) => {
@@ -252,7 +301,7 @@ function calculatePerformanceScore() {
     if (diff > 0) score -= diff
   })
 
-  return Math.max(0, Math.round(score))
+  return Math.max(0, Math.round(score)) // Ensure score doesn't go below 0
 }
 
 // Provide Feedback
