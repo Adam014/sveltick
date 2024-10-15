@@ -2,9 +2,10 @@
 
 Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps.
 
-## 🚀 New Version 1.4.0
+## 🚀 New Version 1.4.1
 
 - Implementing new metrics: `First Input Delay (FID)`, `Interaction to Next Paint (INP)` & `Time to First Byte (TTFB)`
+- Better documentation with notes for optional `threshold`
 
 ## 🚀 Installation
 
@@ -61,7 +62,19 @@ Import **Sveltick** into your Svelte app and start tracking your app's performan
   });
 ```
 
-### Tracking `⚡️First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest Contentful Paint` & `📊 Cumulative Layout Shift`
+📌 Note:
+The `thresholds` object is optional, and each metric has a default value. If you don't provide a custom threshold for a particular metric, the following default values will be used:
+
+- First Contentful Paint (FCP): 2000ms
+- Largest Contentful Paint (LCP): 2500ms
+- Time to Interactive (TTI): 3000ms
+- Cumulative Layout Shift (CLS): 0.1
+- First Input Delay (FID): 100ms
+- Interaction to Next Paint (INP): 200ms
+- Time to First Byte (TTFB): 800ms
+- Component Render Time: 500ms
+
+### Tracking ⚡️ `First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest Contentful Paint` & 📊 `Cumulative Layout Shift`, 🖱️ `First Input Delay`, 🖌️ `Interaction to Next Paint`, 📡 `Time to First Byte`
 
 ```svelte
 <script>
