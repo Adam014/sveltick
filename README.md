@@ -4,7 +4,7 @@ Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tr
 
 ✅ **v5 Svelte support**
 
-## 📦 New Version 1.6.1
+## 📦 Latest Version 1.6.2
 
 - Editing all track functions, they now return only values (component track function returns value + name)
 - The getPerformanceMetrics now return all the metrics in object
