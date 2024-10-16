@@ -11,8 +11,8 @@ import {
   trackComponentRender,
   checkPerformanceAlerts,
   calculatePerformanceScore,
-  runGamification
-} from './PerformanceTracker.js'
+  runGamification,
+} from "./PerformanceTracker.js";
 
 export {
   runPerformanceTracker, // All-in-one function
@@ -27,5 +27,5 @@ export {
   trackComponentRender,
   checkPerformanceAlerts,
   calculatePerformanceScore,
-  runGamification
-}
+  runGamification,
+};

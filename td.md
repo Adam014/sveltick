@@ -5,4 +5,3 @@
 # TODO: Integration with monitoring platforms like Analytics, Sentry, Datadog etc
 
 # TODO: Make an web about sveltick and documentation of it + web performance metrics service for svelte apps
-

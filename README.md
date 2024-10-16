@@ -4,15 +4,13 @@ Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tr
 
 ✅ **v5 Svelte support**
 
-## 🚀 New Version 1.5.4
+## 📦 New Version 1.6.0
 
-- Implementing new metrics: `First Input Delay (FID)`, `Interaction to Next Paint (INP)` & `Time to First Byte (TTFB)`
-- Better documentation with notes for optional `threshold` and FID & INP
-- Fixing bugs with not running functions
-- Adding when there is not tracked INP & FID after 5s, it will be null.
-- Fixing observers are null
+- Editing all track functions, they now return only values (component track function returns value + name)
+- The getPerformanceMetrics now return all the metrics in object
+- Refactoring the code
 
-## 🚀 Installation
+## 📥 Installation
 
 Install **Sveltick** via npm:
 
@@ -86,16 +84,18 @@ The `thresholds` object is optional, and each metric has a default value. If you
   import { onMount } from 'svelte';
   import { trackFirstContentfulPaint, trackTimeToInteractive, trackLargestContentfulPaint, trackCumulativeLayoutShift, trackFirstInputDelay, trackInteractionToNextPaint, trackTimeToFirstByte } from 'sveltick';
 
-  onMount(() => {
-    // Track metrics
-    trackFirstContentfulPaint();
-    trackTimeToInteractive();
-    trackLargestContentfulPaint();
-    trackCumulativeLayoutShift();
-    trackFirstInputDelay();
-    trackInteractionToNextPaint();
-    trackTimeToFirstByte();
+  onMount(async () => {
+    const ftp = await trackFirstContentfulPaint()
+    const tti = await trackTimeToInteractive()
+    const lcp = await trackLargestContentfulPaint();
+    const cls = await trackCumulativeLayoutShift();
+    const fid = await trackFirstInputDelay();
+    const inp = await trackInteractionToNextPaint();
+    const ttfb = await trackTimeToFirstByte();
+
+    console.log(ftp, tti, lcp, cls, fid, inp, ttfb)
   });
+
 </script>
 ```
 
@@ -105,23 +105,26 @@ The `thresholds` object is optional, and each metric has a default value. If you
   import { onMount } from 'svelte';
   import { trackComponentRender } from 'sveltick';
 
-  onMount(() => {
-    const renderTime = performance.now();  // Measure render time
-    trackComponentRender('YourComponent', renderTime);  // Track component render
-  });
+	onMount(() => {
+		const now = performance.now();  // Measure render time
+		const { name, renderTime } = trackComponentRender('YourComponent', now);  // Get the name and render time
+		console.log(name, renderTime);
+	});
 ```
 
 ### 🛠 Performance Report
 
-You can access all performance metrics at any point using:
+You can access all performance metrics (including components one) at any point using:
 
 ```svelte
   import { onMount } from 'svelte';
-  import { getPerformanceMetrics } from 'sveltick';
+  import { trackComponentRender, getPerformanceMetrics } from 'sveltick';
 
   onMount(async () => {
+    const now = performance.now();  // Measure render time
+    trackComponentRender('YourComponent', now);  // Get the name and render time
     const metrics = await getPerformanceMetrics();
-    console.log('Performance Metrics (including component renders):', metrics);
+    console.log(metrics)
   });
 ```
 
