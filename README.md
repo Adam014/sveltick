@@ -4,11 +4,12 @@ Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tr
 
 ✅ **v5 Svelte support**
 
-## 📦 New Version 1.6.0
+## 📦 New Version 1.6.1
 
 - Editing all track functions, they now return only values (component track function returns value + name)
 - The getPerformanceMetrics now return all the metrics in object
-- Refactoring the code
+- Refactoring the code (it runs fasters and smoother haha)
+- Added **Coming up in next releases** to README.md
 
 ## 📥 Installation
 
@@ -23,17 +24,6 @@ Install **Sveltick** via yarn:
 ```bash
 yarn add sveltick
 ```
-
-## 📊 Metrics to check
-
-- **First Contentful Paint** ⚡️
-- **Time to Interactive** 🕒
-- **Component Render Time** 🔧
-- **Largest Contentful Paint** 📏
-- **Cumulative Layout Shift** 📊
-- **First Input Delay** 🖱️ _(Click-based)_
-- **Interaction to Next Paint** 🖌️ _(Click-based)_
-- **Time to First Byte** 📡
 
 ## 🔥 Quick Start
 
@@ -164,6 +154,17 @@ You can access all performance metrics (including components one) at any point u
   });
 ```
 
+## 📊 Metrics to check:
+
+- **First Contentful Paint** ⚡️
+- **Time to Interactive** 🕒
+- **Component Render Time** 🔧
+- **Largest Contentful Paint** 📏
+- **Cumulative Layout Shift** 📊
+- **First Input Delay** 🖱️ _(Click-based)_
+- **Interaction to Next Paint** 🖌️ _(Click-based)_
+- **Time to First Byte** 📡
+
 #### 🖱️ First Input Delay (FID) & 🖌️ Interaction to Next Paint (INP)
 
 📌 Note:
@@ -171,7 +172,15 @@ You can access all performance metrics (including components one) at any point u
 - FID and INP metrics are triggered by user interactions like clicks. These metrics depend on actual user interaction events.
 - If no interaction occurs within 5 seconds, the FID and INP values will be set to null and won't impact the performance alerts or gamification score.
 
-Output example screenshot:
+## ⏳ Coming up in next releases:
+
+1. Any events in page as page views, clicks per view etc...
+2. Plugin system - users can integrate other performance functions from other providers like Web Vitals or Lighthouse
+3. Integration with analytics platforms, like Google Analytics, Sentry or DataDog - data can be send to these providers
+4. Dashboard perfomance-tracker (docs website + dashboard)
+5. Visual showcase of the metrics (graphs)(probably on the dashboard web dont know yet)
+
+## Output example screenshot:
 
 ![Sveltick Example](https://storage.googleapis.com/sveltick_assets/screenshot_sveltick.png)
 

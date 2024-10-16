@@ -1,5 +1,3 @@
-# TODO: Refactor track functions, to be able to return only the numbers so users can then work customly with the numbers
-
 # TODO: Plugin system, enable for users to be able include custom metrics or integrations with Lighthouse or Web Vitals
 
 # TODO: Integration with monitoring platforms like Analytics, Sentry, Datadog etc
