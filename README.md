@@ -1,15 +1,14 @@
 # ⚡️ Sveltick
 
-Welcome to **Sveltick**! This is a super lightweight 🦋 and fun performance-tracking library for your Svelte apps.
+Welcome to **Sveltick**! This is a super lightweight 🦋 and fun **performance**&**traffic**-tracking library for your Svelte apps.
 
 ✅ **v5 Svelte support**
 
-## 📦 Latest Version 1.6.2
+## 📦 Latest Version 1.7.0
 
-- Editing all track functions, they now return only values (component track function returns value + name)
-- The getPerformanceMetrics now return all the metrics in object
-- Refactoring the code (it runs fasters and smoother haha)
-- Added **Coming up in next releases** to README.md
+- Adding tracking of Web traffic - 👁️ pageViews, 🧑‍🤝‍🧑 uniqueUsers, 🛣️ visitedRoutes and 🔗 trafficSources
+- Also possible to get each of them only
+- For the best experience we need to use `onMount` but also `afterUpdate` and use this code in our `src/+layout.svelte` for tracking traffic.
 
 ## 📥 Installation
 
@@ -24,6 +23,8 @@ Install **Sveltick** via yarn:
 ```bash
 yarn add sveltick
 ```
+
+---
 
 ## 🔥 Quick Start
 
@@ -154,7 +155,129 @@ You can access all performance metrics (including components one) at any point u
   });
 ```
 
+### Checking all traffic metrics
+
+For the best experience we need to use `onMount` but also `afterUpdate` and use this code in our `src/+layout.svelte`.
+
+```svelte
+  import { onMount, afterUpdate } from 'svelte';
+  import { trackAllActivities } from 'sveltick';
+
+	// Track all activities on component mount and update
+	let trackedData = {};
+
+	// This function will track and log activities when the component is mounted
+	onMount(() => {
+		trackedData = trackAllActivities();
+		console.log('Tracked Data on Mount:', trackedData);
+	});
+
+	// This function will track and log activities every time the component is updated
+	afterUpdate(() => {
+		trackedData = trackAllActivities
+		console.log('Tracked Data after Update:', trackedData);
+	});
+```
+
+### Track Page Views
+
+```svelte
+  import { onMount, afterUpdate } from 'svelte';
+  import { trackAllActivies, getPageViews } from 'sveltick';
+
+	let pageViews = 0;
+
+	// This function will track and log activities when the component is mounted
+	onMount(() => {
+		trackedData = trackAllActivities();
+		pageViews = getPageViews();
+		console.log(pageViews)
+	});
+
+	// This function will track and log activities every time the component is updated
+	afterUpdate(() => {
+		trackedData = trackAllActivities();
+		pageViews = getPageViews();
+		console.log(pageViews)
+	});
+```
+
+### Track Unique Users
+
+```svelte
+  import { onMount, afterUpdate } from 'svelte';
+  import { trackAllActivies, getUniqueVisitors } from 'sveltick';
+
+	let uniqueVisitors = 0;
+
+	// This function will track and log activities when the component is mounted
+	onMount(() => {
+		trackedData = trackAllActivities();
+		uniqueVisitors = getUniqueVisitors();
+		console.log(uniqueVisitors)
+	});
+
+	// This function will track and log activities every time the component is updated
+	afterUpdate(() => {
+		trackedData = trackAllActivities();
+		uniqueVisitors = getUniqueVisitors();
+		console.log(uniqueVisitors)
+	});
+```
+
+### Track Route Visited
+
+```svelte
+  import { onMount, afterUpdate } from 'svelte';
+  import { trackAllActivies, getRouteViews } from 'sveltick';
+
+  let routeViews = [];
+
+	// This function will track and log activities when the component is mounted
+	onMount(() => {
+		trackedData = trackAllActivities();
+		routeViews = getRouteViews();
+		console.log(routeViews)
+	});
+
+	// This function will track and log activities every time the component is updated
+	afterUpdate(() => {
+		trackedData = trackAllActivities();
+		routeViews = getRouteViews();
+		console.log(routeViews)
+	});
+```
+
+### Track Traffic Sources
+
+- We have for now 4 sources from user comes and we differ it out - `Direct`, `Facebook`, `Google` and `Others`
+
+```svelte
+  import { onMount, afterUpdate } from 'svelte';
+  import { trackAllActivies, getTrafficSources} from 'sveltick';
+
+  let trafficSources = {};
+
+	// This function will track and log activities when the component is mounted
+	onMount(() => {
+		trackedData = trackAllActivities();
+		trafficSources = getTrafficSources();
+		console.log(trafficSources)
+	});
+
+	// This function will track and log activities every time the component is updated
+	afterUpdate(() => {
+		trackedData = trackAllActivities();
+    trafficSources = getTrafficSources();
+		console.log(trafficSources)
+	});
+```
+
+---
+
 ## 📊 Metrics to check:
+
+### Performance
 
 - **First Contentful Paint** ⚡️
 - **Time to Interactive** 🕒
@@ -164,6 +287,13 @@ You can access all performance metrics (including components one) at any point u
 - **First Input Delay** 🖱️ _(Click-based)_
 - **Interaction to Next Paint** 🖌️ _(Click-based)_
 - **Time to First Byte** 📡
+
+### 🚦 Traffic
+
+- **Page Views** 👁️
+- **Unique Users** 🧑‍🤝‍🧑
+- **Visited Routes** 🛣️
+- **Traffic Sources** 🔗
 
 #### 🖱️ First Input Delay (FID) & 🖌️ Interaction to Next Paint (INP)
 
