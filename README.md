@@ -4,11 +4,12 @@ Welcome to **Sveltick**! This is a super lightweight 🦋 and fun **performance*
 
 ✅ **v5 Svelte support**
 
-## 📦 Latest Version 1.7.0
+## 📦 Latest Version 1.7.1
 
 - Adding tracking of Web traffic - 👁️ pageViews, 🧑‍🤝‍🧑 uniqueUsers, 🛣️ visitedRoutes and 🔗 trafficSources
 - Also possible to get each of them only
 - For the best experience we need to use `onMount` but also `afterUpdate` and use this code in our `src/+layout.svelte` for tracking traffic.
+- Fixing documentation
 
 ## 📥 Installation
 
@@ -174,7 +175,7 @@ For the best experience we need to use `onMount` but also `afterUpdate` and use 
 
 	// This function will track and log activities every time the component is updated
 	afterUpdate(() => {
-		trackedData = trackAllActivities
+		trackedData = trackAllActivities();
 		console.log('Tracked Data after Update:', trackedData);
 	});
 ```
@@ -183,9 +184,10 @@ For the best experience we need to use `onMount` but also `afterUpdate` and use 
 
 ```svelte
   import { onMount, afterUpdate } from 'svelte';
-  import { trackAllActivies, getPageViews } from 'sveltick';
+  import { trackAllActivities, getPageViews } from 'sveltick';
 
 	let pageViews = 0;
+  let trackedData = {};
 
 	// This function will track and log activities when the component is mounted
 	onMount(() => {
@@ -206,9 +208,10 @@ For the best experience we need to use `onMount` but also `afterUpdate` and use 
 
 ```svelte
   import { onMount, afterUpdate } from 'svelte';
-  import { trackAllActivies, getUniqueVisitors } from 'sveltick';
+  import { trackAllActivities, getUniqueVisitors } from 'sveltick';
 
 	let uniqueVisitors = 0;
+  let trackedData = {};
 
 	// This function will track and log activities when the component is mounted
 	onMount(() => {
@@ -229,9 +232,10 @@ For the best experience we need to use `onMount` but also `afterUpdate` and use 
 
 ```svelte
   import { onMount, afterUpdate } from 'svelte';
-  import { trackAllActivies, getRouteViews } from 'sveltick';
+  import { trackAllActivities, getRouteViews } from 'sveltick';
 
   let routeViews = [];
+  let trackedData = {};
 
 	// This function will track and log activities when the component is mounted
 	onMount(() => {
@@ -254,9 +258,10 @@ For the best experience we need to use `onMount` but also `afterUpdate` and use 
 
 ```svelte
   import { onMount, afterUpdate } from 'svelte';
-  import { trackAllActivies, getTrafficSources} from 'sveltick';
+  import { trackAllActivities, getTrafficSources} from 'sveltick';
 
   let trafficSources = {};
+  let trackedData = {};
 
 	// This function will track and log activities when the component is mounted
 	onMount(() => {
