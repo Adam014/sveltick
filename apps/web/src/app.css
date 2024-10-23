@@ -1,7 +1,31 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Inika:wght@400;700&display=swap');
+
+:root{
+	--goldish: #DABB42;
+}
 
 * {
 	background-color: #000;
+	font-family: "Inika", serif;
+	font-weight: 400;
+	font-style: normal;
+}
+  
+.inika-bold {
+font-family: "Inika", serif;
+font-weight: 700;
+font-style: normal;
+}
+
+.title-font {
+	font-family: "Dela Gothic One", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+  }
+
+.goldish{
+	color: var(--goldish)
 }
