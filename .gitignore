@@ -1,2 +1,3 @@
 /node_modules
 .turbo
+/packages/sveltick/node_modules
