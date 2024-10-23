@@ -1,0 +1,43 @@
+{
+  "name": "sveltick",
+  "version": "1.7.1",
+  "description": "⚡️ Sveltick: A lightweight, cool performance tracking library for Svelte apps!",
+  "main": "dist/sveltick.cjs.js",
+  "module": "dist/sveltick.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/sveltick.es.js",
+      "require": "./dist/sveltick.cjs.js"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c",
+    "format": "prettier --plugin-search-dir . --write .",
+    "release-patch": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version patch && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes",
+    "release-minor": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version minor && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes",
+    "release-major": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version major && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "prettier": "^3.3.3",
+    "rollup": "^2.38.5",
+    "rollup-plugin-svelte": "^7.1.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "standard-version": "^9.5.0",
+    "svelte": "^3.38.2"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Adam014/sveltick.git"
+  },
+  "author": "Adam014",
+  "keywords": [
+    "svelte",
+    "performance",
+    "tracking",
+    "lightweight"
+  ]
+}
