@@ -1,13 +1,17 @@
 {
-    "name": "monorepo",
-    "version": "1.0.0",
-    "private": true,
-    "packageManager": "npm@9.0.0",
-    "workspaces": [
-      "apps/*",
-      "packages/*"
-    ],
-    "devDependencies": {
-      "turbo": "^2.2.3"
-    }
+  "name": "monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@9.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev"
+  },
+  "devDependencies": {
+    "turbo": "^2.2.3"
   }
+}
