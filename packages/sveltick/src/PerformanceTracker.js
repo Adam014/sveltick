@@ -216,11 +216,11 @@ function checkPerformanceAlerts(thresholds = {}) {
     thresholds || defaultThresholds;
 
   if (
-    performanceMetrics.firstContentfulPaint != null &&
-    performanceMetrics.firstContentfulPaint > fcp
+    global.performanceMetrics.firstContentfulPaint != null &&
+    global.performanceMetrics.firstContentfulPaint > fcp
   ) {
     console.warn(
-      `⚠️ FCP of ${performanceMetrics.firstContentfulPaint} ms exceeded threshold of ${fcp} ms`,
+      `⚠️ FCP of ${global.performanceMetrics.firstContentfulPaint} ms exceeded threshold of ${fcp} ms`,
     );
   }
 

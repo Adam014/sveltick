@@ -7,8 +7,6 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"lint": "eslint . && prettier --check .",
-		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run",
 		"format": "prettier --write ."
 	},
 	"devDependencies": {

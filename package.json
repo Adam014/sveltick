@@ -8,12 +8,15 @@
     "packages/*"
   ],
   "scripts": {
+    "test": "turbo run test",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "turbo run format"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "turbo": "^2.2.3"
   }
 }
