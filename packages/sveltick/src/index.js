@@ -11,16 +11,16 @@ import {
   trackComponentRender,
   checkPerformanceAlerts,
   calculatePerformanceScore,
-  runGamification
-} from './PerformanceTracker.js'
+  runGamification,
+} from "./PerformanceTracker.js";
 
 import {
   trackAllActivities,
   getPageViews,
   getRouteViews,
   getTrafficSources,
-  getUniqueVisitors
-} from './ActivityTracker.js'
+  getUniqueVisitors,
+} from "./ActivityTracker.js";
 
 export {
   runPerformanceTracker, // All-in-one function
@@ -40,5 +40,5 @@ export {
   getPageViews, // Get total page views
   getRouteViews,
   getTrafficSources,
-  getUniqueVisitors
-}
+  getUniqueVisitors,
+};
