@@ -64,3 +64,14 @@ nav{
 .white-button:hover{
 	opacity: 0.8;
 }
+
+.meet{
+	font-size: 8rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5;
+}
+
+.sveltick{
+	color: var(--goldish);
+	font-size: 7rem;
+}
