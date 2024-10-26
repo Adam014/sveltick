@@ -2,6 +2,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Inika:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Iceberg&display=swap');
 
 :root{
 	--goldish: #DABB42;
@@ -23,6 +24,12 @@ body{
 	font-style: normal;
 	color: white;
 }
+
+.ibm-plex-serif-light {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 300;
+  font-style: normal;
+}
   
 .inika-bold {
 font-family: "Inika", serif;
@@ -31,10 +38,10 @@ font-style: normal;
 }
 
 .title-font {
-	font-family: "Dela Gothic One", sans-serif;
-	font-weight: 400;
-	font-style: normal;
-  }
+  font-family: "Iceberg", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
 
 .goldish{
 	color: var(--goldish)
@@ -59,19 +66,35 @@ nav{
 	border-radius: 15px;
 	width: 80px;
 	transition: 0.4s ease;
+	text-decoration: underline;
 }
 
-.white-button:hover{
+.title-bottom-container{
+	gap: 34rem;
+}
+
+.black-button{
+	background: #0B090A;
+	color: #fff;
+	padding: 10px;
+	border: 1px solid #fff;
+	border-radius: 15px;
+	width: 80px;
+	transition: 0.4s ease;
+	text-decoration: underline;
+}
+
+.white-button:hover, .black-button:hover{
 	opacity: 0.8;
 }
 
-.meet{
-	font-size: 8rem;
-	text-transform: uppercase;
-	letter-spacing: 0.5;
+.meet {
+    font-size: 15rem; /* Increase the font size */
+    text-transform: uppercase;
 }
 
 .sveltick{
 	color: var(--goldish);
-	font-size: 7rem;
+	font-size: 5.3rem;
+	letter-spacing: 0.55em;
 }
