@@ -1,13 +1,13 @@
 {
-  "name": "svelte-performance",
+  "name": "sveltick",
   "version": "1.7.1",
-  "description": "⚡️ svelte-performance: A lightweight, cool performance tracking library for Svelte apps!",
-  "main": "dist/svelte-performance.cjs.js",
-  "module": "dist/svelte-performance.es.js",
+  "description": "⚡️ Sveltick: A lightweight, cool performance tracking library for Svelte apps!",
+  "main": "dist/sveltick.cjs.js",
+  "module": "dist/sveltick.es.js",
   "exports": {
     ".": {
-      "import": "./dist/svelte-performance.es.js",
-      "require": "./dist/svelte-performance.cjs.js"
+      "import": "./dist/sveltick.es.js",
+      "require": "./dist/sveltick.cjs.js"
     }
   },
   "type": "module",
@@ -35,7 +35,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Adam014/svelte-performance.git"
+    "url": "https://github.com/Adam014/sveltick.git"
   },
   "author": "Adam014",
   "keywords": [
