@@ -1,6 +1,6 @@
 {
   "name": "svelte-performance",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "⚡️ svelte-performance: A lightweight, cool performance tracking library for Svelte apps!",
   "main": "dist/svelte-performance.cjs.js",
   "module": "dist/svelte-performance.es.js",

@@ -1,3 +1,3 @@
-# ⚡️ Sveltick Monorepo
+# ⚡️ Svelte-performance Monorepo
 
 Documentation coming soon.
