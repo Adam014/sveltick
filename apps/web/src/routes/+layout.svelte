@@ -6,5 +6,4 @@
 <main>
 	<Navbar />
 	<slot />
-
 </main>

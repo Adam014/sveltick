@@ -4,62 +4,62 @@
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Inika:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Iceberg&display=swap');
 
-:root{
-	--goldish: #DABB42;
-	--grey: #343A40;
+:root {
+	--goldish: #dabb42;
+	--grey: #343a40;
 }
 
-.grey-underline{
+.grey-underline {
 	border-bottom: 1px solid var(--grey);
 }
 
-body{
+body {
 	min-height: 100vh;
 }
 
 * {
 	background-color: #000;
-	font-family: "Inika", serif;
+	font-family: 'Inika', serif;
 	font-weight: 400;
 	font-style: normal;
 	color: white;
 }
 
 .ibm-plex-serif-light {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 300;
-  font-style: normal;
+	font-family: 'IBM Plex Serif', serif;
+	font-weight: 300;
+	font-style: normal;
 }
-  
+
 .inika-bold {
-font-family: "Inika", serif;
-font-weight: 700;
-font-style: normal;
+	font-family: 'Inika', serif;
+	font-weight: 700;
+	font-style: normal;
 }
 
 .title-font {
-  font-family: "Iceberg", sans-serif;
-  font-weight: 400;
-  font-style: normal;
+	font-family: 'Iceberg', sans-serif;
+	font-weight: 400;
+	font-style: normal;
 }
 
-.goldish{
-	color: var(--goldish)
+.goldish {
+	color: var(--goldish);
 }
 
-nav{
+nav {
 	align-items: center;
 	justify-content: space-between;
 }
 
-.nav-links h3{
+.nav-links h3 {
 	padding: 15px;
 	text-decoration: underline;
 	opacity: 0.7;
 	cursor: pointer;
 }
 
-.white-button{
+.white-button {
 	background: #fff;
 	color: #000;
 	padding: 10px;
@@ -69,12 +69,12 @@ nav{
 	text-decoration: underline;
 }
 
-.title-bottom-container{
+.title-bottom-container {
 	gap: 34rem;
 }
 
-.black-button{
-	background: #0B090A;
+.black-button {
+	background: #0b090a;
 	color: #fff;
 	padding: 10px;
 	border: 1px solid #fff;
@@ -84,16 +84,17 @@ nav{
 	text-decoration: underline;
 }
 
-.white-button:hover, .black-button:hover{
+.white-button:hover,
+.black-button:hover {
 	opacity: 0.8;
 }
 
 .meet {
-    font-size: 15rem; /* Increase the font size */
-    text-transform: uppercase;
+	font-size: 15rem; /* Increase the font size */
+	text-transform: uppercase;
 }
 
-.sveltick{
+.sveltick {
 	color: var(--goldish);
 	font-size: 5.3rem;
 	letter-spacing: 0.55em;
