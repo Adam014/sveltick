@@ -1,0 +1,5 @@
+
+
+# ⚡️ Sveltick Monorepo
+
+Documentación próximamente.
