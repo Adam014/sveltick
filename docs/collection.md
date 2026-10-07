@@ -9,7 +9,8 @@ running event loop and can be delayed in background tabs.
 `getPerformanceSnapshot()` reads a defensive copy of already collected values
 without registering new observers. Individual collectors update this state as
 they finish; one missing metric does not hide another completed metric. Calling
-`getPerformanceMetrics` still starts a fresh bounded legacy collection.
+`getPerformanceMetrics` waits for a bounded snapshot of the same document
+backend; it does not restart measurement.
 
 Imports are safe without DOM or browser storage. SSR calls return null metrics
 or empty activity data. Storage is accessed only when activity functions run.
@@ -24,6 +25,22 @@ transactional yet; this contract does not promise exact cross-tab totals.
 Routes currently retain the legacy unique-path semantics.
 
 Alerts read the actual collected state and merge partial thresholds with
-defaults. Missing results are skipped. Measurement definitions and the legacy
-score will be updated separately; a bounded result is not a final Core Web
-Vitals report.
+defaults. Missing results are skipped. The legacy score will be updated separately. A bounded result is not a final
+Core Web Vitals report.
+
+FCP, LCP, CLS, INP and TTFB use bundled web-vitals 6.2.3 with reportAllChanges.
+LCP, CLS and INP wait until the requested deadline and return their current
+values; FCP and TTFB can return earlier. Snapshot reads continue to reflect new
+reports after a waiting call has returned. Backend registration happens once
+per document, including across HMR imports. BFCache restoration starts a new
+set of document metrics. Unsupported entry types stay null.
+
+TTI is deprecated and returns null because the former load timestamp was not
+TTI. FID remains available only as an explicitly called legacy collector.
+Component timing records a supplied non-negative duration; it does not profile
+Svelte rendering. Component records are limited to the latest 1000 entries.
+
+These are document metrics, not metrics for each SPA route. There is no
+soft-navigation metric claim. The backend retains its document-lifetime
+observers after an individual snapshot request completes. See the
+[web-vitals API](https://github.com/GoogleChrome/web-vitals) for metric semantics.

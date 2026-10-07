@@ -1,4 +1,5 @@
 import { rm } from "node:fs/promises";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import terser from "@rollup/plugin-terser";
 import { rollup } from "rollup";
@@ -8,7 +9,11 @@ await rm("dist", { recursive: true, force: true });
 
 const bundle = await rollup({
   input: "src/index.ts",
-  plugins: [typescript({ tsconfig: "./tsconfig.build.json" }), terser()],
+  plugins: [
+    nodeResolve(),
+    typescript({ tsconfig: "./tsconfig.build.json" }),
+    terser(),
+  ],
 });
 
 try {

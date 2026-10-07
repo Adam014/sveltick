@@ -22,4 +22,12 @@
 - Add `getPerformanceSnapshot()` for defensive copies of partial results.
 - Make all legacy collectors and activity entry points safe to call during SSR.
 
-The legacy metric algorithms remain provisional until the measurement update.
+### Measurement fixes
+
+- Measure FCP, LCP, CLS, INP and TTFB with bundled web-vitals 6.2.3.
+- Keep one backend per document and update snapshots throughout its lifetime.
+- Report later LCP candidates, CLS session windows and full interaction latency.
+- Retire the incorrect TTI load timestamp (the compatibility call returns null).
+- Keep FID as an explicit legacy collector, outside aggregate collection.
+- Validate supplied component durations and bound their history.
+- Include the bundled dependency license in package notices.

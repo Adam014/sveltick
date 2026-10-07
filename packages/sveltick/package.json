@@ -29,16 +29,17 @@
     "prepack": "npm run check && npm run build"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@types/jest": "^29.5.14",
     "prettier": "^3.3.3",
     "rollup": "^4.24.0",
-    "standard-version": "^9.5.0",
-    "@rollup/plugin-typescript": "^12.3.0",
-    "@rollup/plugin-terser": "^0.4.4",
     "rollup-plugin-dts": "^6.5.1",
-    "tslib": "^2.8.1",
+    "standard-version": "^9.5.0",
     "ts-jest": "^29.4.14",
     "ts-node": "^10.9.2",
-    "@types/jest": "^29.5.14"
+    "tslib": "^2.8.1"
   },
   "license": "MIT",
   "repository": {
@@ -56,6 +57,10 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
-  ]
+    "LICENSE",
+    "THIRD_PARTY_NOTICES"
+  ],
+  "dependencies": {
+    "web-vitals": "^6.2.3"
+  }
 }

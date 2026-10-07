@@ -30,7 +30,10 @@ const collected = await getPerformanceMetrics({ timeoutMs: 1000 });
 All legacy collectors accept `timeoutMs` (default 5000 ms, clamped to 0–60000).
 The deadline bounds waiting while the event loop can run; it does not make
 page-lifetime metrics final. SSR returns empty activity data and null metrics.
-These reliability fixes do not yet correct the legacy INP/LCP/CLS algorithms.
+Standard metrics now use the bundled `web-vitals` backend. LCP, CLS, and INP
+continue updating for the document lifetime; snapshots are provisional.
+`trackTimeToInteractive()` is deprecated and returns `null`; FID is legacy
+and excluded from aggregate collection.
 See the repository [collection contract](https://github.com/Adam014/sveltick/blob/main/docs/collection.md).
 
 ### TypeScript (unreleased source migration)
@@ -146,7 +149,7 @@ The `thresholds` object is optional, and each metric has a default value. If you
   import { trackComponentRender } from 'sveltick';
 
 	onMount(() => {
-		const now = performance.now();  // Measure render time
+		const now = 12.5; // Example of an already measured duration in milliseconds.
 		const { name, renderTime } = trackComponentRender('YourComponent', now);  // Get the name and render time
 		console.log(name, renderTime);
 	});
@@ -161,7 +164,7 @@ You can access all performance metrics (including components one) at any point u
   import { trackComponentRender, getPerformanceMetrics } from 'sveltick';
 
   onMount(async () => {
-    const now = performance.now();  // Measure render time
+    const now = 12.5; // Example of an already measured duration in milliseconds.
     trackComponentRender('YourComponent', now);  // Get the name and render time
     const metrics = await getPerformanceMetrics();
     console.log(metrics)

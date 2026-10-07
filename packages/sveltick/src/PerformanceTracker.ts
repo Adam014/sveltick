@@ -1,3 +1,5 @@
+import { readVitals, waitForVital } from "./VitalsEngine.js";
+import type { VitalName } from "./VitalsEngine.js";
 import type {
   CollectionOptions,
   ComponentRenderResult,
@@ -6,11 +8,6 @@ import type {
   PerformanceThresholds,
   PerformanceTrackerOptions,
 } from "./types.js";
-
-interface LayoutShiftEntry extends PerformanceEntry {
-  hadRecentInput: boolean;
-  value: number;
-}
 
 interface FirstInputEntry extends PerformanceEntry {
   processingStart: number;
@@ -48,7 +45,7 @@ async function runPerformanceTracker(
   // Step 1: Track Metrics
   if (trackMetrics) {
     await getPerformanceMetrics({ timeoutMs });
-    console.log("📊 Performance Metrics:", performanceMetrics);
+    console.log("📊 Performance Metrics:", getPerformanceSnapshot());
   }
 
   // Step 2: Check Performance Alerts if enabled
@@ -145,67 +142,36 @@ function observe(
   );
 }
 
+async function vital(
+  name: VitalName,
+  options?: CollectionOptions,
+): Promise<MetricValue> {
+  const value = await waitForVital(name, options?.timeoutMs);
+  return value === null ? null : value.toFixed(name === "CLS" ? 4 : 2);
+}
 function trackFirstContentfulPaint(
   options?: CollectionOptions,
 ): Promise<MetricValue> {
-  return observe(
-    "firstContentfulPaint",
-    "paint",
-    (list) => {
-      const entry = list.getEntriesByName("first-contentful-paint")[0];
-      return entry?.startTime.toFixed(2);
-    },
-    options,
-  );
+  return vital("FCP", options);
 }
-
-/** Legacy load timestamp; this is not the standard TTI algorithm. */
-function trackTimeToInteractive(
-  options?: CollectionOptions,
-): Promise<MetricValue> {
-  return collect(
-    "timeToInteractive",
-    (finish) => {
-      const loaded = () => finish(performance.now().toFixed(2));
-      if (document.readyState === "complete") loaded();
-      else window.addEventListener("load", loaded, { once: true });
-      return () => window.removeEventListener("load", loaded);
-    },
-    options,
-  );
-}
-
 function trackLargestContentfulPaint(
   options?: CollectionOptions,
 ): Promise<MetricValue> {
-  return observe(
-    "largestContentfulPaint",
-    "largest-contentful-paint",
-    (list) => {
-      const entries = list.getEntries();
-      return entries[entries.length - 1]?.startTime.toFixed(2);
-    },
-    options,
-  );
+  return vital("LCP", options);
 }
-
 function trackCumulativeLayoutShift(
   options?: CollectionOptions,
 ): Promise<MetricValue> {
-  return observe(
-    "cumulativeLayoutShift",
-    "layout-shift",
-    (list) => {
-      const value = (list.getEntries() as LayoutShiftEntry[]).reduce(
-        (sum, entry) => sum + (!entry.hadRecentInput ? entry.value : 0),
-        0,
-      );
-      return value.toFixed(4);
-    },
-    options,
-  );
+  return vital("CLS", options);
+}
+/** @deprecated TTI is not collected. Use INP; this compatibility function returns null. */
+function trackTimeToInteractive(
+  _options?: CollectionOptions,
+): Promise<MetricValue> {
+  return Promise.resolve(null);
 }
 
+/** @deprecated FID is a legacy metric; prefer INP. */
 function trackFirstInputDelay(
   options?: CollectionOptions,
 ): Promise<MetricValue> {
@@ -225,37 +191,28 @@ function trackFirstInputDelay(
 function trackInteractionToNextPaint(
   options?: CollectionOptions,
 ): Promise<MetricValue> {
-  return collect(
-    "interactionToNextPaint",
-    (finish) => {
-      const clicked = (event: MouseEvent) =>
-        finish((performance.now() - event.timeStamp).toFixed(2));
-      window.addEventListener("click", clicked, { once: true });
-      return () => window.removeEventListener("click", clicked);
-    },
-    options,
-  );
+  return vital("INP", options);
 }
-
 function trackTimeToFirstByte(
   options?: CollectionOptions,
 ): Promise<MetricValue> {
-  return collect(
-    "timeToFirstByte",
-    (finish) => {
-      const timing = performance.timing;
-      finish(
-        timing ? (timing.responseStart - timing.requestStart).toFixed(2) : null,
-      );
-    },
-    options,
-  );
+  return vital("TTFB", options);
 }
 
 /** Reads already collected results without creating observers. */
 function getPerformanceSnapshot(): PerformanceMetrics {
+  const values = readVitals();
+  const formatted = (name: VitalName): MetricValue =>
+    values[name].value === null
+      ? null
+      : values[name].value.toFixed(name === "CLS" ? 4 : 2);
   return {
     ...performanceMetrics,
+    firstContentfulPaint: formatted("FCP"),
+    largestContentfulPaint: formatted("LCP"),
+    cumulativeLayoutShift: formatted("CLS"),
+    interactionToNextPaint: formatted("INP"),
+    timeToFirstByte: formatted("TTFB"),
     componentRenderTimes: performanceMetrics.componentRenderTimes.map(
       (entry) => ({ ...entry }),
     ),
@@ -267,7 +224,13 @@ function trackComponentRender(
   name: string,
   renderTime: number,
 ): ComponentRenderResult {
+  if (!Number.isFinite(renderTime) || renderTime < 0)
+    throw new RangeError(
+      "renderTime must be a finite non-negative duration in milliseconds",
+    );
   performanceMetrics.componentRenderTimes.push({ name, renderTime });
+  if (performanceMetrics.componentRenderTimes.length > 1000)
+    performanceMetrics.componentRenderTimes.shift();
   return {
     name,
     renderTime: renderTime.toFixed(2), // Format render time to 2 decimal places
@@ -278,6 +241,7 @@ function trackComponentRender(
 function checkPerformanceAlerts(
   thresholds: Partial<PerformanceThresholds> | null = {},
 ): void {
+  const performanceMetrics = getPerformanceSnapshot();
   const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } = {
     ...defaultThresholds,
     ...thresholds,
@@ -357,6 +321,7 @@ function checkPerformanceAlerts(
 
 // Calculate Performance Score - Skip missing metrics
 function calculatePerformanceScore(): number {
+  const performanceMetrics = getPerformanceSnapshot();
   let score = MAX_SCORE;
 
   const metricDifferences = [
@@ -416,40 +381,17 @@ async function runGamification(): Promise<void> {
   provideFeedback(score);
 }
 
-// Automatically rerun all tracking functions when calling getPerformanceMetrics
+/** Waits for a bounded snapshot; ongoing document measurement is not restarted. */
 async function getPerformanceMetrics(
   options: CollectionOptions = {},
 ): Promise<PerformanceMetrics> {
-  const [
-    firstContentfulPaint,
-    timeToInteractive,
-    largestContentfulPaint,
-    cumulativeLayoutShift,
-    firstInputDelay,
-    interactionToNextPaint,
-    timeToFirstByte,
-  ] = await Promise.all([
+  await Promise.all([
     trackFirstContentfulPaint(options),
-    trackTimeToInteractive(options),
     trackLargestContentfulPaint(options),
     trackCumulativeLayoutShift(options),
-    trackFirstInputDelay(options),
     trackInteractionToNextPaint(options),
     trackTimeToFirstByte(options),
   ]);
-
-  // Update the global performanceMetrics object instead of re-declaring it
-  performanceMetrics = {
-    ...performanceMetrics, // Keep existing component render times and other properties
-    firstContentfulPaint,
-    timeToInteractive,
-    largestContentfulPaint,
-    cumulativeLayoutShift,
-    firstInputDelay,
-    interactionToNextPaint,
-    timeToFirstByte,
-  };
-
   return getPerformanceSnapshot();
 }
 
