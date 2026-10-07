@@ -1,3 +1,4 @@
+import { classifyReferrer } from "./Activity.js";
 import type { ActivityMetrics, RouteView, TrafficSources } from "./types.js";
 
 type Area = "localStorage" | "sessionStorage";
@@ -116,21 +117,12 @@ function trackAllActivities(): ActivityMetrics {
   write("uniqueVisitors", JSON.stringify(uniqueVisitors));
   const routeViews = getRouteViews();
   const route = window.location.pathname.slice(0, 2048);
-  if (!routeViews.some((entry) => entry.route === route)) {
-    routeViews.push({ route, timestamp: Date.now() });
-    if (routeViews.length > 1000) routeViews.shift();
-    write("routeViews", JSON.stringify(routeViews));
-  }
+  routeViews.push({ route, timestamp: Date.now() });
+  if (routeViews.length > 1000) routeViews.shift();
+  write("routeViews", JSON.stringify(routeViews));
   const trafficSources = getTrafficSources();
   if (!read("trackedTrafficSource", "sessionStorage")) {
-    const referrer = document.referrer.toLowerCase();
-    const source = !referrer
-      ? "Direct"
-      : referrer.includes("google")
-        ? "Google"
-        : referrer.includes("facebook")
-          ? "Facebook"
-          : "Others";
+    const source = classifyReferrer(document.referrer);
     trafficSources[source] = Math.min(
       Number.MAX_SAFE_INTEGER,
       trafficSources[source] + 1,

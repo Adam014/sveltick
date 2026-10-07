@@ -39,3 +39,13 @@
 - Bound operation/component history by entry count and retention time.
 - Add manual interval measurement and history reset without restarting Web Vitals.
 - Isolate synchronous and asynchronous subscriber failures.
+
+### Navigation and SvelteKit
+
+- Add createActivityTracker with bounded navigation history, ID deduplication,
+  hostname-based attribution and opt-in transactional IndexedDB persistence.
+- Add connectSvelteKit with initial/client/back-forward navigation tracking and
+  layout cleanup; support Svelte 5 runes without afterUpdate.
+- Record repeat routes in the synchronous compatibility API.
+- Integrate the library in the website and add a live showcase with a second route.
+- Make shared navigation wrap on mobile and provide a keyboard skip link.

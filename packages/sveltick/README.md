@@ -1,399 +1,89 @@
-# ⚡️ Sveltick
+# Sveltick
 
-Welcome to **Sveltick**! This is a super lightweight 🦋 and fun **performance**&**traffic**-tracking library for your Svelte apps.
+Document performance and navigation activity for Svelte and SvelteKit.
 
-✅ **v5 Svelte support**
+**Unreleased source:** the APIs below are on the repository's main branch.
+Published npm 1.7.1 predates these fixes. Build this workspace or install its
+packed archive to try them before the next package release.
 
-## 📦 Latest Version 1.7.1
+## SvelteKit
 
-- Adding tracking of Web traffic - 👁️ pageViews, 🧑‍🤝‍🧑 uniqueUsers, 🛣️ visitedRoutes and 🔗 trafficSources
-- Also possible to get each of them only
-- For the best experience we need to use `onMount` but also `afterUpdate` and use this code in our `src/+layout.svelte` for tracking traffic.
-- Fixing documentation
+Register once in `src/routes/+layout.svelte`, keeping its existing slot/children:
 
-## 📥 Installation
+```svelte
+<script lang="ts">
+  import { onDestroy, onMount } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
+  import { connectSvelteKit } from 'sveltick';
 
-### Tracker lifecycle (unreleased)
+  const tracking = connectSvelteKit({ afterNavigate, onDestroy }, {
+    activity: { storage: 'indexeddb', namespace: 'my-app' }
+  });
+  onMount(() => tracking.performance.subscribe((snapshot) => {
+    console.log(snapshot.metrics.INP);
+  }));
+</script>
+```
+
+The initial page and completed client navigations each produce one visit.
+Renders do not count as navigations. Storage defaults to isolated memory;
+IndexedDB is opt-in and provides transactional totals shared across tabs.
+These are browser-local activity counts, not site-wide analytics. Nothing is
+sent to a server automatically.
+
+[SvelteKit guide](https://github.com/Adam014/sveltick/blob/main/docs/sveltekit.md)
+· [Activity and storage](https://github.com/Adam014/sveltick/blob/main/docs/activity.md)
+
+## Performance without a framework
 
 ```ts
 import { createTracker } from "sveltick";
 
 const tracker = createTracker({ maxComponentEntries: 100 });
-tracker.start(); // Safe to call repeatedly; SSR is a no-op.
+tracker.start();
 const unsubscribe = tracker.subscribe((snapshot) => {
-  console.log(snapshot.metrics.INP.value, snapshot.metrics.INP.status);
+  console.log(snapshot.metrics.LCP.value, snapshot.metrics.LCP.status);
 });
-// When the consumer is destroyed:
+const snapshot = tracker.getSnapshot();
 unsubscribe();
 tracker.dispose();
 ```
 
-Snapshots contain numeric values, units, availability states and timestamps.
-`getSnapshot()` starts no collectors and returns independent data. `stop()`
-freezes this instance's metrics and stops delivery; `start()` resumes it.
-`dispose()` also removes subscribers. Document Web Vitals keep their shared
-backend; stopping a subscriber does not claim to disconnect that backend.
-See [tracker lifecycle](https://github.com/Adam014/sveltick/blob/main/docs/tracker.md).
-
-### Reliability and collection (unreleased)
-
-Imports do not access browser storage. Missing or malformed storage is handled
-safely; unavailable storage falls back to memory for the current module lifetime.
-Activity counts describe this browser only, not site-wide analytics.
-
-```ts
-import { getPerformanceMetrics, getPerformanceSnapshot } from "sveltick";
-
-const partial = getPerformanceSnapshot(); // Does not start new collectors.
-const collected = await getPerformanceMetrics({ timeoutMs: 1000 });
-// Missing, unsupported, or failed collectors are null, not fabricated zeros.
-```
-
-All legacy collectors accept `timeoutMs` (default 5000 ms, clamped to 0–60000).
-The deadline bounds waiting while the event loop can run; it does not make
-page-lifetime metrics final. SSR returns empty activity data and null metrics.
-Standard metrics now use the bundled `web-vitals` backend. LCP, CLS, and INP
-continue updating for the document lifetime; snapshots are provisional.
-`trackTimeToInteractive()` is deprecated and returns `null`; FID is legacy
-and excluded from aggregate collection.
-See the repository [collection contract](https://github.com/Adam014/sveltick/blob/main/docs/collection.md).
-
-### TypeScript (unreleased source migration)
-
-The repository now includes TypeScript definitions. After building this checkout,
-ESM and CommonJS consumers receive types automatically without an `@types` package.
-The published `1.7.1` release predates this migration.
-
-```ts
-import {
-  trackComponentRender,
-  type ComponentRenderResult,
-  type PerformanceTrackerOptions,
-} from "sveltick";
-
-const options: PerformanceTrackerOptions = {
-  thresholds: { fcp: 1800 },
-};
-const result: ComponentRenderResult = trackComponentRender("Example", 12.5);
-```
-
-Public types also include `MetricValue`, `PerformanceMetrics`,
-`PerformanceThresholds`, `ComponentRenderTime`, `ActivityMetrics`, `RouteView`,
-and `TrafficSources`. Metric collectors preserve formatted `string | null`
-results, and component render results preserve their formatted strings. This
-migration does not change the existing measurement algorithms.
-
-JavaScript consumers continue importing the same functions. The CommonJS entry
-now uses `.cjs`; use `require("sveltick")` instead of an internal bundle path.
-
-Install **Sveltick** via npm:
-
-```bash
-npm install sveltick
-```
-
-Install **Sveltick** via yarn:
-
-```bash
-yarn add sveltick
-```
-
----
-
-## 🔥 Quick Start
-
-Import **Sveltick** into your Svelte app and start tracking your app's performance!
-
-### 📈 Track **everything** you need and configure what metrics you want to see
-
-```svelte
-  import { onMount } from 'svelte';
-  import { runPerformanceTracker } from 'sveltick';
-
-  onMount(() => {
-    // Run the performance tracker with custom options
-    runPerformanceTracker({
-      trackMetrics: true,     // Track all metrics
-      showAlerts: true,       // Enable alerts
-      enableGamification: true, // Enable gamification
-      thresholds:  {
-        fcp: 1800,  // Custom threshold for FCP
-        lcp: 2300,  // Custom threshold for LCP
-        tti: 2800,  // Custom threshold for TTI
-        cls: 0.15,  // Custom threshold for CLS
-        fid: 100, // Custom threshold for FID
-        inp: 200, // Custom threshold for INP
-        ttfb: 800, // Custom threshold for TTFB
-        componentRenderTime: 400 // Custom threshold for component render time
-      }
-    });
-  });
-```
-
-📌 Note:
-The `thresholds` object is optional, and each metric has a default value. If you don't provide a custom threshold for a particular metric, the following default values will be used:
-
-- First Contentful Paint (FCP): 2000ms
-- Largest Contentful Paint (LCP): 2500ms
-- Time to Interactive (TTI): 3000ms
-- Cumulative Layout Shift (CLS): 0.1
-- First Input Delay (FID): 100ms _(User must interact with the page to track this metric)_
-- Interaction to Next Paint (INP): 200ms _(User must interact with the page to track this metric)_
-- Time to First Byte (TTFB): 800ms
-- Component Render Time: 500ms
-
-### Tracking ⚡️ `First Contentful Paint`, 🕒`Time to Interactive`, 📏`Largest Contentful Paint` & 📊 `Cumulative Layout Shift`, 🖱️ `First Input Delay`, 🖌️ `Interaction to Next Paint`, 📡 `Time to First Byte`
-
-```svelte
-<script>
-  import { onMount } from 'svelte';
-  import { trackFirstContentfulPaint, trackTimeToInteractive, trackLargestContentfulPaint, trackCumulativeLayoutShift, trackFirstInputDelay, trackInteractionToNextPaint, trackTimeToFirstByte } from 'sveltick';
-
-  onMount(async () => {
-    const ftp = await trackFirstContentfulPaint()
-    const tti = await trackTimeToInteractive()
-    const lcp = await trackLargestContentfulPaint();
-    const cls = await trackCumulativeLayoutShift();
-    const fid = await trackFirstInputDelay();
-    const inp = await trackInteractionToNextPaint();
-    const ttfb = await trackTimeToFirstByte();
-
-    console.log(ftp, tti, lcp, cls, fid, inp, ttfb)
-  });
-
-</script>
-```
-
-### 🔧 Tracking `Component` Render Times
-
-```svelte
-  import { onMount } from 'svelte';
-  import { trackComponentRender } from 'sveltick';
-
-	onMount(() => {
-		const now = 12.5; // Example of an already measured duration in milliseconds.
-		const { name, renderTime } = trackComponentRender('YourComponent', now);  // Get the name and render time
-		console.log(name, renderTime);
-	});
-```
-
-### 🛠 Performance Report
-
-You can access all performance metrics (including components one) at any point using:
-
-```svelte
-  import { onMount } from 'svelte';
-  import { trackComponentRender, getPerformanceMetrics } from 'sveltick';
-
-  onMount(async () => {
-    const now = 12.5; // Example of an already measured duration in milliseconds.
-    trackComponentRender('YourComponent', now);  // Get the name and render time
-    const metrics = await getPerformanceMetrics();
-    console.log(metrics)
-  });
-```
-
-### ⚠️ Checking for all performance with custom threshold alerts
-
-```svelte
-  import { onMount } from 'svelte';
-  import { getPerformanceMetrics, checkPerformanceAlerts } from 'sveltick';
-
-  onMount(async () => {
-    const metrics = await getPerformanceMetrics();
-    console.log('Updated Performance Metrics:', metrics);
-
-    // Check for any performance alerts with custom thresholds
-    checkPerformanceAlerts({
-      fcp: 1800,  // Custom threshold for FCP
-      lcp: 2300,  // Custom threshold for LCP
-      tti: 2800,  // Custom threshold for TTI
-      cls: 0.15,  // Custom threshold for CLS
-      fid: 100, // Custom threshold for FID
-      inp: 200, // Custom threshold for INP
-      ttfb: 800, // Custom threshold for TTFB
-      componentRenderTime: 400 // Custom threshold for component render time
-    });
-  });
-```
-
-### 🎯 Checking the score of your web based by the performance
-
-```svelte
-  import { onMount } from 'svelte';
-  import { runGamification } from 'sveltick';
-
-  onMount(() => {
-    // Run the gamification logic
-    runGamification();
-  });
-```
-
-### Checking all traffic metrics
-
-For the best experience we need to use `onMount` but also `afterUpdate` and use this code in our `src/+layout.svelte`.
-
-```svelte
-  import { onMount, afterUpdate } from 'svelte';
-  import { trackAllActivities } from 'sveltick';
-
-	// Track all activities on component mount and update
-	let trackedData = {};
-
-	// This function will track and log activities when the component is mounted
-	onMount(() => {
-		trackedData = trackAllActivities();
-		console.log('Tracked Data on Mount:', trackedData);
-	});
-
-	// This function will track and log activities every time the component is updated
-	afterUpdate(() => {
-		trackedData = trackAllActivities();
-		console.log('Tracked Data after Update:', trackedData);
-	});
-```
-
-### Track Page Views
-
-```svelte
-  import { onMount, afterUpdate } from 'svelte';
-  import { trackAllActivities, getPageViews } from 'sveltick';
-
-	let pageViews = 0;
-  let trackedData = {};
-
-	// This function will track and log activities when the component is mounted
-	onMount(() => {
-		trackedData = trackAllActivities();
-		pageViews = getPageViews();
-		console.log(pageViews)
-	});
-
-	// This function will track and log activities every time the component is updated
-	afterUpdate(() => {
-		trackedData = trackAllActivities();
-		pageViews = getPageViews();
-		console.log(pageViews)
-	});
-```
-
-### Track Unique Users
-
-```svelte
-  import { onMount, afterUpdate } from 'svelte';
-  import { trackAllActivities, getUniqueVisitors } from 'sveltick';
-
-	let uniqueVisitors = 0;
-  let trackedData = {};
-
-	// This function will track and log activities when the component is mounted
-	onMount(() => {
-		trackedData = trackAllActivities();
-		uniqueVisitors = getUniqueVisitors();
-		console.log(uniqueVisitors)
-	});
-
-	// This function will track and log activities every time the component is updated
-	afterUpdate(() => {
-		trackedData = trackAllActivities();
-		uniqueVisitors = getUniqueVisitors();
-		console.log(uniqueVisitors)
-	});
-```
-
-### Track Route Visited
-
-```svelte
-  import { onMount, afterUpdate } from 'svelte';
-  import { trackAllActivities, getRouteViews } from 'sveltick';
-
-  let routeViews = [];
-  let trackedData = {};
-
-	// This function will track and log activities when the component is mounted
-	onMount(() => {
-		trackedData = trackAllActivities();
-		routeViews = getRouteViews();
-		console.log(routeViews)
-	});
-
-	// This function will track and log activities every time the component is updated
-	afterUpdate(() => {
-		trackedData = trackAllActivities();
-		routeViews = getRouteViews();
-		console.log(routeViews)
-	});
-```
-
-### Track Traffic Sources
-
-- We have for now 4 sources from user comes and we differ it out - `Direct`, `Facebook`, `Google` and `Others`
-
-```svelte
-  import { onMount, afterUpdate } from 'svelte';
-  import { trackAllActivities, getTrafficSources} from 'sveltick';
-
-  let trafficSources = {};
-  let trackedData = {};
-
-	// This function will track and log activities when the component is mounted
-	onMount(() => {
-		trackedData = trackAllActivities();
-		trafficSources = getTrafficSources();
-		console.log(trafficSources)
-	});
-
-	// This function will track and log activities every time the component is updated
-	afterUpdate(() => {
-		trackedData = trackAllActivities();
-    trafficSources = getTrafficSources();
-		console.log(trafficSources)
-	});
-```
-
----
-
-## 📊 Metrics to check:
-
-### Performance
-
-- **First Contentful Paint** ⚡️
-- **Time to Interactive** 🕒
-- **Component Render Time** 🔧
-- **Largest Contentful Paint** 📏
-- **Cumulative Layout Shift** 📊
-- **First Input Delay** 🖱️ _(Click-based)_
-- **Interaction to Next Paint** 🖌️ _(Click-based)_
-- **Time to First Byte** 📡
-
-### 🚦 Traffic
-
-- **Page Views** 👁️
-- **Unique Users** 🧑‍🤝‍🧑
-- **Visited Routes** 🛣️
-- **Traffic Sources** 🔗
-
-#### 🖱️ First Input Delay (FID) & 🖌️ Interaction to Next Paint (INP)
-
-📌 Note:
-
-- FID and INP metrics are triggered by user interactions like clicks. These metrics depend on actual user interaction events.
-- If no interaction occurs within 5 seconds, the FID and INP values will be set to null and won't impact the performance alerts or gamification score.
-
-## ⏳ Coming up in next releases:
-
-1. Any events in page as page views, clicks per view etc...
-2. Plugin system - users can integrate other performance functions from other providers like Web Vitals or Lighthouse
-3. Integration with analytics platforms, like Google Analytics, Sentry or DataDog - data can be send to these providers
-4. Dashboard perfomance-tracker (docs website + dashboard)
-5. Visual showcase of the metrics (graphs)(probably on the dashboard web dont know yet)
-
-## Output example screenshot:
-
-![Sveltick Example](https://storage.googleapis.com/sveltick_assets/screenshot_sveltick.png)
-
-For now it is just this simple console info about the project (of course you could implement it into something bigger!). But in the **upcoming days I will create a dashboard performance-tracking webapp for this library**, where you could use `Sveltick` from anywhere around the globe! So stay tuned guys!
-
-## 📜 License
-
-MIT ©️ Adam Stadnik
+FCP, LCP, CLS, INP and TTFB use the bundled web-vitals backend. Numeric snapshots
+include units, timestamps and pending/available/unsupported/error states.
+Values can update throughout the document lifetime. Missing data stays null;
+no-interaction INP is not fabricated as zero. Reads do not restart measurement.
+`stop()` freezes this instance; `start()` resumes it. `dispose()` removes its
+subscribers. The shared measurement backend follows the document lifetime.
+
+`recordComponent(name, durationMs)` records a supplied duration; `measure(name)`
+returns an end function for an explicitly chosen interval. Neither API claims
+to automatically profile Svelte rendering. History has count and age limits.
+
+[Tracker lifecycle](https://github.com/Adam014/sveltick/blob/main/docs/tracker.md)
+· [Metric collection](https://github.com/Adam014/sveltick/blob/main/docs/collection.md)
+
+## Compatibility API
+
+The existing standalone collectors and `getPerformanceMetrics({ timeoutMs })`
+return formatted strings or null. Waiting defaults to 5000 ms and is bounded
+to 0–60000 ms while the event loop runs. `getPerformanceSnapshot()` reads an
+independent copy of current results. LCP/CLS/INP continue updating after a
+bounded request finishes; its result is not a final page-lifetime report.
+
+TTI is deprecated and returns null because the old load timestamp was not TTI.
+FID is an explicit legacy collector outside aggregate collection. Browser alerts
+use collected state and merged thresholds. The old synchronous activity API
+retains its localStorage keys and memory fallback, but is not transactional
+across tabs; prefer createActivityTracker. SSR imports are safe and record no
+browser activity.
+
+## TypeScript and packages
+
+Sources use strict TypeScript. The npm package contains JavaScript and types for
+both ESM and CommonJS. Public types include TrackerSnapshot, TrackerOptions,
+ActivitySnapshot, ActivityOptions and the compatibility API's existing types.
+No TypeScript runtime or framework is needed for the core API.
+
+[Development and compatibility](https://github.com/Adam014/sveltick/blob/main/docs/typescript.md)
+· [Changelog](https://github.com/Adam014/sveltick/blob/main/CHANGELOG.md)

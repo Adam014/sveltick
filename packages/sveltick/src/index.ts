@@ -66,3 +66,19 @@ export type {
   ComponentMeasurement,
 } from "./Tracker.js";
 export type { VitalName, VitalResult, VitalResults } from "./VitalsEngine.js";
+
+export { createActivityTracker, classifyReferrer } from "./Activity.js";
+export type {
+  ActivityTracker,
+  ActivityOptions,
+  ActivitySnapshot,
+  NavigationInput,
+  NavigationRecord,
+  TrafficSource,
+} from "./Activity.js";
+export { connectSvelteKit } from "./SvelteKit.js";
+export type {
+  SvelteKitHooks,
+  SvelteKitOptions,
+  SvelteKitTracking,
+} from "./SvelteKit.js";

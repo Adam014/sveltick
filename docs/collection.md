@@ -22,7 +22,9 @@ this compatibility release. Route and visitor lists are capped at 1000 entries.
 Page views increment on each explicit `trackAllActivities` call. These local
 counters are not site-wide analytics. Concurrent cross-tab read/write is not
 transactional yet; this contract does not promise exact cross-tab totals.
-Routes currently retain the legacy unique-path semantics.
+Routes now retain repeat visits as separate events; history is bounded to 1000
+entries. The asynchronous activity API adds transactional persistence and
+configurable retention; see [navigation activity](activity.md).
 
 Alerts read the actual collected state and merge partial thresholds with
 defaults. Missing results are skipped. The legacy score will be updated separately. A bounded result is not a final

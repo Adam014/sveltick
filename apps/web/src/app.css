@@ -99,3 +99,56 @@ nav {
 	font-size: 5.3rem;
 	letter-spacing: 0.55em;
 }
+
+.content-page {
+	width: min(calc(100% - 2rem), 64rem);
+	margin: 2rem auto 4rem;
+	line-height: 1.6;
+}
+.content-page h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	margin: 1rem 0;
+}
+.content-page h2 {
+	font-size: 1.5rem;
+	margin: 2rem 0 1rem;
+}
+.content-page p {
+	margin: 1rem 0;
+	max-width: 72ch;
+}
+.content-page .black-button {
+	display: inline-block;
+	width: auto;
+	padding: 0.75rem 1rem;
+}
+.action-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem;
+	margin: 1.5rem 0;
+}
+.table-scroll {
+	max-width: 100%;
+	overflow-x: auto;
+}
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+caption {
+	text-align: left;
+	font-size: 1.5rem;
+	margin: 1.5rem 0 1rem;
+}
+th,
+td {
+	text-align: left;
+	border-bottom: 1px solid var(--grey);
+	padding: 0.75rem 0.5rem;
+}
+:focus-visible {
+	outline: 2px solid var(--goldish);
+	outline-offset: 4px;
+}
