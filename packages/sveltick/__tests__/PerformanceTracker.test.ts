@@ -1,24 +1,8 @@
-import {
-  calculatePerformanceScore,
-  trackComponentRender,
-  trackFirstContentfulPaint,
-  trackTimeToInteractive,
-  trackLargestContentfulPaint,
-  trackCumulativeLayoutShift,
-  checkPerformanceAlerts,
-} from "../src/PerformanceTracker.js";
-import type { PerformanceMetrics } from "../src/types.js";
-
-const mockPerformanceMetrics: PerformanceMetrics = {
-  firstContentfulPaint: "1000",
-  largestContentfulPaint: "1500",
-  timeToInteractive: "2000",
-  cumulativeLayoutShift: "0.05",
-  firstInputDelay: "50",
-  interactionToNextPaint: "100",
-  timeToFirstByte: "400",
-  componentRenderTimes: [{ name: "ComponentA", renderTime: 300 }],
-};
+let api: typeof import("../src/PerformanceTracker.js");
+beforeEach(async () => {
+  jest.resetModules();
+  api = await import("../src/PerformanceTracker.js");
+});
 
 const originalObserver = Object.getOwnPropertyDescriptor(
   globalThis,
@@ -69,29 +53,29 @@ afterEach(() => {
 
 describe("PerformanceTracker Functions", () => {
   test("calculatePerformanceScore accounts for recorded component durations", () => {
-    expect(calculatePerformanceScore()).toBe(100);
-    expect(trackComponentRender("ComponentA", 2500)).toEqual({
+    expect(api.calculatePerformanceScore()).toBe(100);
+    expect(api.trackComponentRender("ComponentA", 2500)).toEqual({
       name: "ComponentA",
       renderTime: "2500.00",
     });
-    expect(calculatePerformanceScore()).toBe(80);
+    expect(api.calculatePerformanceScore()).toBe(80);
   });
 
   test("trackFirstContentfulPaint resolves with the formatted FCP", async () => {
     mockObserver([
       makeEntry({ name: "first-contentful-paint", startTime: 1234.56 }),
     ]);
-    await expect(trackFirstContentfulPaint()).resolves.toBe("1234.56");
+    await expect(api.trackFirstContentfulPaint()).resolves.toBe("1234.56");
   });
 
   test("trackTimeToInteractive resolves with a formatted time", async () => {
     jest.spyOn(globalThis.performance, "now").mockReturnValue(1000);
-    await expect(trackTimeToInteractive()).resolves.toBe("1000.00");
+    await expect(api.trackTimeToInteractive()).resolves.toBe("1000.00");
   });
 
   test("trackLargestContentfulPaint resolves with the formatted LCP", async () => {
     mockObserver([makeEntry({ startTime: 2345.67 })]);
-    await expect(trackLargestContentfulPaint()).resolves.toBe("2345.67");
+    await expect(api.trackLargestContentfulPaint()).resolves.toBe("2345.67");
   });
 
   test("trackCumulativeLayoutShift formats the observed CLS", async () => {
@@ -101,14 +85,17 @@ describe("PerformanceTracker Functions", () => {
       value: 0.03,
     };
     mockObserver([entry]);
-    await expect(trackCumulativeLayoutShift()).resolves.toBe("0.0300");
+    await expect(api.trackCumulativeLayoutShift()).resolves.toBe("0.0300");
   });
 
-  test("checkPerformanceAlerts retains the legacy global FCP lookup", () => {
+  test("checkPerformanceAlerts uses collected state and default thresholds", async () => {
     const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
-    Object.assign(globalThis, { performanceMetrics: mockPerformanceMetrics });
-    checkPerformanceAlerts({ fcp: 500 });
+    mockObserver([
+      makeEntry({ name: "first-contentful-paint", startTime: 9000 }),
+    ]);
+    await api.trackFirstContentfulPaint();
+    api.checkPerformanceAlerts();
     expect(warn).toHaveBeenCalledTimes(1);
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("FCP of 1000"));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("FCP of 9000"));
   });
 });

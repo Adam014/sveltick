@@ -11,4 +11,15 @@
 - Keep formatting explicit instead of rewriting files during builds.
 - Fix the existing redundant image alt text that blocked website lint.
 
-Tracking algorithms are unchanged.
+### Reliability fixes
+
+- Make imports storage-independent and recover from unavailable or malformed
+  browser storage with a memory fallback.
+- Fix repeated page-view increments and empty visitor getters.
+- Fix browser alerts and merge partial thresholds with defaults.
+- Bound legacy metric collection with `timeoutMs` (default 5000 ms), clean up
+  listeners/observers, and isolate missing or failed metrics as `null`.
+- Add `getPerformanceSnapshot()` for defensive copies of partial results.
+- Make all legacy collectors and activity entry points safe to call during SSR.
+
+The legacy metric algorithms remain provisional until the measurement update.

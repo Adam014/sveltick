@@ -12,7 +12,12 @@ export interface PerformanceThresholds {
   componentRenderTime: number;
 }
 
-export interface PerformanceTrackerOptions {
+export interface CollectionOptions {
+  /** Maximum wait in milliseconds (default 5000, clamped to 0–60000). */
+  timeoutMs?: number;
+}
+
+export interface PerformanceTrackerOptions extends CollectionOptions {
   trackMetrics?: boolean;
   showAlerts?: boolean;
   enableGamification?: boolean;
@@ -33,7 +38,7 @@ export interface PerformanceMetrics {
   firstContentfulPaint: MetricValue;
   timeToInteractive: MetricValue;
   largestContentfulPaint: MetricValue;
-  /** Initialized to zero before the first collection. */
+  /** Null when no result is available. */
   cumulativeLayoutShift: MetricValue | number;
   firstInputDelay: MetricValue;
   interactionToNextPaint: MetricValue;

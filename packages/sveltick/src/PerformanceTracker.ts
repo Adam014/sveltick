@@ -1,13 +1,11 @@
 import type {
+  CollectionOptions,
   ComponentRenderResult,
   MetricValue,
   PerformanceMetrics,
   PerformanceThresholds,
   PerformanceTrackerOptions,
 } from "./types.js";
-
-// Legacy FCP alert lookup retained during the TypeScript migration.
-declare const global: { performanceMetrics: PerformanceMetrics };
 
 interface LayoutShiftEntry extends PerformanceEntry {
   hadRecentInput: boolean;
@@ -41,6 +39,7 @@ async function runPerformanceTracker(
     showAlerts = true, // Enable or disable performance alerts
     enableGamification = true, // Enable or disable gamification
     thresholds = {}, // Allow users to set custom thresholds for alerts
+    timeoutMs = 5000,
   } = options;
 
   // Merge user-defined thresholds with defaults
@@ -48,7 +47,7 @@ async function runPerformanceTracker(
 
   // Step 1: Track Metrics
   if (trackMetrics) {
-    await getPerformanceMetrics(); // Runs all tracking functions
+    await getPerformanceMetrics({ timeoutMs });
     console.log("📊 Performance Metrics:", performanceMetrics);
   }
 
@@ -69,155 +68,198 @@ let performanceMetrics: PerformanceMetrics = {
   firstContentfulPaint: null,
   timeToInteractive: null,
   largestContentfulPaint: null,
-  cumulativeLayoutShift: 0,
+  cumulativeLayoutShift: null,
   firstInputDelay: null,
   interactionToNextPaint: null,
   timeToFirstByte: null,
   componentRenderTimes: [],
 };
 
-// Core Tracker Functions
+// Every collection owns its timeout and cleanup, including unsupported APIs.
+type MetricKey = Exclude<keyof PerformanceMetrics, "componentRenderTimes">;
 
-function trackFirstContentfulPaint(): Promise<MetricValue> {
-  return new Promise<MetricValue>((resolve) => {
-    if (typeof window !== "undefined" && "PerformanceObserver" in window) {
-      const observer = new PerformanceObserver((list) => {
-        const entry = list.getEntriesByName("first-contentful-paint")[0];
-        if (entry) {
-          const firstContentfulPaintTime = entry.startTime.toFixed(2); // String with 2 decimals
-          resolve(firstContentfulPaintTime);
-          observer.disconnect();
+function collect(
+  key: MetricKey,
+  start: (finish: (value: MetricValue) => void) => (() => void) | void,
+  options: CollectionOptions = {},
+): Promise<MetricValue> {
+  if (typeof window === "undefined") return Promise.resolve(null);
+  return new Promise((resolve) => {
+    let settled = false;
+    let cleanup: (() => void) | void;
+    const timeout = Number.isFinite(options.timeoutMs)
+      ? Math.min(60000, Math.max(0, options.timeoutMs!))
+      : 5000;
+    const timer = setTimeout(() => finish(null), timeout);
+    function finish(value: MetricValue): void {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      cleanup?.();
+      performanceMetrics[key] = value;
+      resolve(value);
+    }
+    try {
+      cleanup = start(finish);
+      if (settled) cleanup?.();
+    } catch {
+      finish(null);
+    }
+  });
+}
+
+function observe(
+  key: MetricKey,
+  type: string,
+  read: (entries: PerformanceObserverEntryList) => MetricValue | undefined,
+  options?: CollectionOptions,
+): Promise<MetricValue> {
+  return collect(
+    key,
+    (finish) => {
+      if (
+        typeof PerformanceObserver === "undefined" ||
+        (PerformanceObserver.supportedEntryTypes &&
+          !PerformanceObserver.supportedEntryTypes.includes(type))
+      ) {
+        finish(null);
+        return;
+      }
+      const observer = new PerformanceObserver((entries) => {
+        try {
+          const value = read(entries);
+          if (value !== undefined) finish(value);
+        } catch {
+          finish(null);
         }
       });
-      observer.observe({ type: "paint", buffered: true });
-    } else {
-      resolve(null); // Return null if not supported
-    }
-  });
-}
-
-// Time to Interactive
-function trackTimeToInteractive(): Promise<MetricValue> {
-  return new Promise<MetricValue>((resolve) => {
-    if (typeof window !== "undefined") {
-      window.addEventListener("load", () => {
-        const tti = performance.now().toFixed(2); // Return formatted value
-        resolve(tti); // Resolve the value
-      });
-
-      if (document.readyState === "complete") {
-        const ttiFallback = performance.now().toFixed(2); // Fallback value
-        resolve(ttiFallback); // Resolve the value
+      try {
+        observer.observe({ type, buffered: true });
+      } catch {
+        observer.disconnect();
+        finish(null);
       }
-    } else {
-      resolve(null); // Resolve null in unsupported environments
-    }
-  });
-}
-// Largest Contentful Paint
-function trackLargestContentfulPaint(): Promise<MetricValue> {
-  return new Promise<MetricValue>((resolve) => {
-    if (typeof window !== "undefined" && "PerformanceObserver" in window) {
-      const observer = new PerformanceObserver((list) => {
-        const entries = list.getEntries();
-        const lastEntry = entries[entries.length - 1]; // Get the last entry
-        const largestContentfulPaintTime = lastEntry.startTime.toFixed(2); // Format value
-        resolve(largestContentfulPaintTime); // Resolve the value
-        observer.disconnect();
-      });
-      observer.observe({ type: "largest-contentful-paint", buffered: true });
-    } else {
-      resolve(null); // Resolve null in unsupported environments
-    }
-  });
+      return () => observer.disconnect();
+    },
+    options,
+  );
 }
 
-// Cumulative Layout Shift
-function trackCumulativeLayoutShift(): Promise<MetricValue> {
-  return new Promise<MetricValue>((resolve) => {
-    if (typeof window !== "undefined" && "PerformanceObserver" in window) {
-      let clsValue = 0;
-      const observer = new PerformanceObserver((list) => {
-        (list.getEntries() as LayoutShiftEntry[]).forEach((entry) => {
-          if (!entry.hadRecentInput && entry.value) {
-            clsValue += entry.value;
-          }
-        });
-        const clsValueFormatted = clsValue.toFixed(4); // Format CLS to 4 decimals
-        resolve(clsValueFormatted); // Resolve the value
-        observer.disconnect();
-      });
-      observer.observe({ type: "layout-shift", buffered: true });
-    } else {
-      resolve(null); // Resolve null in SSR or unsupported environments
-    }
-  });
+function trackFirstContentfulPaint(
+  options?: CollectionOptions,
+): Promise<MetricValue> {
+  return observe(
+    "firstContentfulPaint",
+    "paint",
+    (list) => {
+      const entry = list.getEntriesByName("first-contentful-paint")[0];
+      return entry?.startTime.toFixed(2);
+    },
+    options,
+  );
 }
 
-// Track First Input Delay (FID)
-function trackFirstInputDelay(): Promise<MetricValue> {
-  return new Promise<MetricValue>((resolve) => {
-    if (typeof window !== "undefined" && "PerformanceObserver" in window) {
-      const observer = new PerformanceObserver((list) => {
-        const firstEntry = list.getEntries()[0] as FirstInputEntry;
-        const firstInputDelay = (
-          firstEntry.processingStart - firstEntry.startTime
-        ).toFixed(2); // Format value
-        resolve(firstInputDelay); // Resolve the value
-        observer.disconnect();
-      });
-
-      observer.observe({ type: "first-input", buffered: true });
-
-      // Fallback if no user input is captured within 5 seconds
-      setTimeout(() => {
-        if (performanceMetrics.firstInputDelay === null) {
-          console.warn("⚠️ No First Input Delay captured, using default.");
-          resolve(null);
-        }
-      }, 5000);
-    } else {
-      resolve(null); // Resolve null in unsupported environments
-    }
-  });
+/** Legacy load timestamp; this is not the standard TTI algorithm. */
+function trackTimeToInteractive(
+  options?: CollectionOptions,
+): Promise<MetricValue> {
+  return collect(
+    "timeToInteractive",
+    (finish) => {
+      const loaded = () => finish(performance.now().toFixed(2));
+      if (document.readyState === "complete") loaded();
+      else window.addEventListener("load", loaded, { once: true });
+      return () => window.removeEventListener("load", loaded);
+    },
+    options,
+  );
 }
 
-// Track Interaction to Next Paint (INP)
-function trackInteractionToNextPaint(): Promise<MetricValue> {
-  return new Promise<MetricValue>((resolve) => {
-    let interactionOccurred = false;
-    const handleInteraction = (event: MouseEvent): void => {
-      const inp = (performance.now() - event.timeStamp).toFixed(2); // Format value
-      resolve(inp); // Resolve the value
-      interactionOccurred = true;
-      window.removeEventListener("click", handleInteraction);
-    };
-
-    window.addEventListener("click", handleInteraction);
-
-    setTimeout(() => {
-      if (!interactionOccurred) {
-        console.warn(
-          "⚠️ No interaction occurred or INP tracking is not supported.",
-        );
-        resolve(null); // Resolve null if no interaction occurred
-      }
-    }, 5000); // 3 second timeout as a fallback
-  });
+function trackLargestContentfulPaint(
+  options?: CollectionOptions,
+): Promise<MetricValue> {
+  return observe(
+    "largestContentfulPaint",
+    "largest-contentful-paint",
+    (list) => {
+      const entries = list.getEntries();
+      return entries[entries.length - 1]?.startTime.toFixed(2);
+    },
+    options,
+  );
 }
 
-// Time to First Byte (TTFB)
-function trackTimeToFirstByte(): Promise<MetricValue> {
-  return new Promise<MetricValue>((resolve) => {
-    if (typeof window !== "undefined") {
-      const ttfb = (
-        performance.timing.responseStart - performance.timing.requestStart
-      ).toFixed(2); // Format value
-      resolve(ttfb); // Resolve the value
-    } else {
-      resolve(null); // Resolve null in unsupported environments
-    }
-  });
+function trackCumulativeLayoutShift(
+  options?: CollectionOptions,
+): Promise<MetricValue> {
+  return observe(
+    "cumulativeLayoutShift",
+    "layout-shift",
+    (list) => {
+      const value = (list.getEntries() as LayoutShiftEntry[]).reduce(
+        (sum, entry) => sum + (!entry.hadRecentInput ? entry.value : 0),
+        0,
+      );
+      return value.toFixed(4);
+    },
+    options,
+  );
+}
+
+function trackFirstInputDelay(
+  options?: CollectionOptions,
+): Promise<MetricValue> {
+  return observe(
+    "firstInputDelay",
+    "first-input",
+    (list) => {
+      const entry = list.getEntries()[0] as FirstInputEntry | undefined;
+      return entry
+        ? (entry.processingStart - entry.startTime).toFixed(2)
+        : undefined;
+    },
+    options,
+  );
+}
+
+function trackInteractionToNextPaint(
+  options?: CollectionOptions,
+): Promise<MetricValue> {
+  return collect(
+    "interactionToNextPaint",
+    (finish) => {
+      const clicked = (event: MouseEvent) =>
+        finish((performance.now() - event.timeStamp).toFixed(2));
+      window.addEventListener("click", clicked, { once: true });
+      return () => window.removeEventListener("click", clicked);
+    },
+    options,
+  );
+}
+
+function trackTimeToFirstByte(
+  options?: CollectionOptions,
+): Promise<MetricValue> {
+  return collect(
+    "timeToFirstByte",
+    (finish) => {
+      const timing = performance.timing;
+      finish(
+        timing ? (timing.responseStart - timing.requestStart).toFixed(2) : null,
+      );
+    },
+    options,
+  );
+}
+
+/** Reads already collected results without creating observers. */
+function getPerformanceSnapshot(): PerformanceMetrics {
+  return {
+    ...performanceMetrics,
+    componentRenderTimes: performanceMetrics.componentRenderTimes.map(
+      (entry) => ({ ...entry }),
+    ),
+  };
 }
 
 // Track Component Render Times
@@ -236,15 +278,17 @@ function trackComponentRender(
 function checkPerformanceAlerts(
   thresholds: Partial<PerformanceThresholds> | null = {},
 ): void {
-  const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } =
-    thresholds || defaultThresholds;
+  const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } = {
+    ...defaultThresholds,
+    ...thresholds,
+  };
 
   if (
-    global.performanceMetrics.firstContentfulPaint != null &&
-    Number(global.performanceMetrics.firstContentfulPaint) > Number(fcp)
+    performanceMetrics.firstContentfulPaint != null &&
+    Number(performanceMetrics.firstContentfulPaint) > Number(fcp)
   ) {
     console.warn(
-      `⚠️ FCP of ${global.performanceMetrics.firstContentfulPaint} ms exceeded threshold of ${fcp} ms`,
+      `⚠️ FCP of ${performanceMetrics.firstContentfulPaint} ms exceeded threshold of ${fcp} ms`,
     );
   }
 
@@ -373,7 +417,9 @@ async function runGamification(): Promise<void> {
 }
 
 // Automatically rerun all tracking functions when calling getPerformanceMetrics
-async function getPerformanceMetrics(): Promise<PerformanceMetrics> {
+async function getPerformanceMetrics(
+  options: CollectionOptions = {},
+): Promise<PerformanceMetrics> {
   const [
     firstContentfulPaint,
     timeToInteractive,
@@ -383,13 +429,13 @@ async function getPerformanceMetrics(): Promise<PerformanceMetrics> {
     interactionToNextPaint,
     timeToFirstByte,
   ] = await Promise.all([
-    trackFirstContentfulPaint(),
-    trackTimeToInteractive(),
-    trackLargestContentfulPaint(),
-    trackCumulativeLayoutShift(),
-    trackFirstInputDelay(),
-    trackInteractionToNextPaint(),
-    trackTimeToFirstByte(),
+    trackFirstContentfulPaint(options),
+    trackTimeToInteractive(options),
+    trackLargestContentfulPaint(options),
+    trackCumulativeLayoutShift(options),
+    trackFirstInputDelay(options),
+    trackInteractionToNextPaint(options),
+    trackTimeToFirstByte(options),
   ]);
 
   // Update the global performanceMetrics object instead of re-declaring it
@@ -404,13 +450,14 @@ async function getPerformanceMetrics(): Promise<PerformanceMetrics> {
     timeToFirstByte,
   };
 
-  return performanceMetrics;
+  return getPerformanceSnapshot();
 }
 
 // Expose functions for custom use
 export {
   runPerformanceTracker, // All-in-one function
   getPerformanceMetrics, // Track metrics manually
+  getPerformanceSnapshot,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackLargestContentfulPaint,

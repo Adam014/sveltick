@@ -1,160 +1,154 @@
 import type { ActivityMetrics, RouteView, TrafficSources } from "./types.js";
 
-// Utility to check if code is running in a browser environment
-function isBrowser(): boolean {
-  return (
-    typeof window !== "undefined" && typeof window.localStorage !== "undefined"
-  );
-}
+type Area = "localStorage" | "sessionStorage";
+// Storage access is lazy. A failed area stays in memory for this module lifetime,
+// so a failed write cannot be replaced by stale persisted data on the next read.
+const memory: Record<Area, Map<string, string>> = {
+  localStorage: new Map(),
+  sessionStorage: new Map(),
+};
+const disabled = new Set<Area>();
+const browser = (): boolean => typeof window !== "undefined";
 
-// Initialize traffic sources from localStorage, or default values if they don't exist
-const trafficSources: TrafficSources = isBrowser()
-  ? (JSON.parse(
-      localStorage.getItem("trafficSources") ?? "null",
-    ) as TrafficSources | null) || {
-      Direct: 0,
-      Google: 0,
-      Facebook: 0,
-      Others: 0,
+function read(key: string, area: Area = "localStorage"): string | null {
+  if (!browser()) return null;
+  if (!disabled.has(area)) {
+    try {
+      const value = window[area].getItem(key);
+      if (value === null) memory[area].delete(key);
+      else memory[area].set(key, value);
+      return value;
+    } catch {
+      disabled.add(area);
     }
-  : { Direct: 0, Google: 0, Facebook: 0, Others: 0 };
-
-// Initialize other tracking values from localStorage
-const pageViewCount: number = isBrowser()
-  ? parseInt(localStorage.getItem("pageViewCount") ?? "") || 0
-  : 0;
-const uniqueVisitors: Set<string> = isBrowser()
-  ? new Set(
-      (JSON.parse(localStorage.getItem("uniqueVisitors") ?? "null") as
-        | string[]
-        | null) || [],
-    )
-  : new Set();
-const routeViews: RouteView[] = isBrowser()
-  ? (JSON.parse(localStorage.getItem("routeViews") ?? "null") as
-      | RouteView[]
-      | null) || []
-  : [];
-
-// Track page views and update in localStorage, only in browser
-function trackPageView(): number {
-  if (isBrowser()) {
-    const updatedPageViewCount = pageViewCount + 1;
-    localStorage.setItem("pageViewCount", String(updatedPageViewCount));
-    return updatedPageViewCount;
   }
-  return 0; // Return 0 if not in browser
+  return memory[area].get(key) ?? null;
 }
-
-// Get page view count
-function getPageViews(): number {
-  return isBrowser()
-    ? parseInt(localStorage.getItem("pageViewCount") ?? "") || 0
+function write(key: string, value: string, area: Area = "localStorage"): void {
+  if (!browser()) return;
+  memory[area].set(key, value);
+  if (!disabled.has(area)) {
+    try {
+      window[area].setItem(key, value);
+    } catch {
+      disabled.add(area);
+    }
+  }
+}
+function parse(key: string): unknown {
+  try {
+    return JSON.parse(read(key) ?? "null");
+  } catch {
+    return null;
+  }
+}
+function count(value: unknown): number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0
+    ? value
     : 0;
 }
-
-// Track unique visitors using localStorage to persist visitorId, only in browser
-function trackUniqueVisitors(): number {
-  if (isBrowser()) {
-    let visitorId = localStorage.getItem("visitorId");
-    if (!visitorId) {
-      visitorId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-      localStorage.setItem("visitorId", visitorId);
+const emptySources = (): TrafficSources => ({
+  Direct: 0,
+  Google: 0,
+  Facebook: 0,
+  Others: 0,
+});
+function getTrafficSources(): TrafficSources {
+  const data = parse("trafficSources");
+  const result = emptySources();
+  if (data && typeof data === "object") {
+    for (const key of Object.keys(result) as (keyof TrafficSources)[]) {
+      result[key] = count((data as Record<string, unknown>)[key]);
     }
-    uniqueVisitors.add(visitorId);
-    localStorage.setItem("uniqueVisitors", JSON.stringify([...uniqueVisitors]));
-    return uniqueVisitors.size;
   }
-  return 0; // Return 0 if not in browser
+  return result;
 }
-
-// Get unique visitor count
-function getUniqueVisitors(): number {
-  return isBrowser()
-    ? (JSON.parse(localStorage.getItem("uniqueVisitors") ?? "null") as string[])
-        .length || 0
-    : 0;
-}
-
-// Track all viewed routes and associate with the user ID, but prevent duplicate routes
-function trackRouteView(route: string): RouteView[] {
-  if (isBrowser()) {
-    const newRoute = { route, timestamp: Date.now() };
-
-    // Only add the route if it hasn't been tracked in this session
-    if (!routeViews.find((view) => view.route === route)) {
-      routeViews.push(newRoute); // Add the new route view along with the user ID
-      localStorage.setItem("routeViews", JSON.stringify(routeViews)); // Save updated route views to localStorage
-    }
-    return routeViews;
-  }
-  return []; // Return empty array if not in browser
-}
-
-// Get all route views
-function getRouteViews(): RouteView[] {
-  return isBrowser()
-    ? (JSON.parse(localStorage.getItem("routeViews") ?? "null") as
-        | RouteView[]
-        | null) || []
+function visitors(): string[] {
+  const data = parse("uniqueVisitors");
+  return Array.isArray(data)
+    ? [
+        ...new Set(
+          data.filter(
+            (id): id is string => typeof id === "string" && id.length <= 200,
+          ),
+        ),
+      ].slice(-1000)
     : [];
 }
-
-// Track the source of traffic and update in localStorage
-function trackSourceOfTraffic(): TrafficSources {
-  if (isBrowser()) {
-    // Only track the source once per session
-    if (!sessionStorage.getItem("trackedTrafficSource")) {
-      const referrer = document.referrer.toLowerCase();
-
-      if (!referrer) {
-        trafficSources.Direct++; // No referrer means Direct visit
-      } else if (referrer.includes("google")) {
-        trafficSources.Google++; // Referrer from Google
-      } else if (referrer.includes("facebook")) {
-        trafficSources.Facebook++; // Referrer from Facebook
-      } else {
-        trafficSources.Others++; // Any other referrer is counted as Others
-      }
-
-      // Mark the traffic source as tracked for this session
-      sessionStorage.setItem("trackedTrafficSource", "true");
-    }
-
-    // Store updated traffic sources in localStorage
-    localStorage.setItem("trafficSources", JSON.stringify(trafficSources));
-
-    // Return the current traffic sources for use
-    return trafficSources;
-  }
-
-  // Default return if not in a browser environment
-  return { Direct: 0, Google: 0, Facebook: 0, Others: 0 };
+function getUniqueVisitors(): number {
+  return visitors().length;
 }
-
-// Get traffic sources
-function getTrafficSources(): TrafficSources {
-  return isBrowser()
-    ? (JSON.parse(
-        localStorage.getItem("trafficSources") ?? "null",
-      ) as TrafficSources | null) || trafficSources
-    : { Direct: 0, Google: 0, Facebook: 0, Others: 0 };
+function getPageViews(): number {
+  return count(Number(read("pageViewCount")));
 }
-
-// Track all activities and return an object with data
+function getRouteViews(): RouteView[] {
+  const data = parse("routeViews");
+  if (!Array.isArray(data)) return [];
+  return data
+    .filter(
+      (entry): entry is RouteView =>
+        !!entry &&
+        typeof entry === "object" &&
+        typeof entry.route === "string" &&
+        entry.route.length <= 2048 &&
+        typeof entry.timestamp === "number" &&
+        Number.isFinite(entry.timestamp),
+    )
+    .slice(-1000)
+    .map(({ route, timestamp }) => ({ route, timestamp }));
+}
 function trackAllActivities(): ActivityMetrics {
+  if (!browser())
+    return {
+      pageViews: 0,
+      uniqueVisitors: 0,
+      routeViews: [],
+      trafficSources: emptySources(),
+    };
+  const pageViews = Math.min(Number.MAX_SAFE_INTEGER, getPageViews() + 1);
+  write("pageViewCount", String(pageViews));
+  let visitorId = read("visitorId");
+  if (!visitorId || visitorId.length > 200) {
+    visitorId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    write("visitorId", visitorId);
+  }
+  const uniqueVisitors = [...new Set([...visitors(), visitorId])].slice(-1000);
+  write("uniqueVisitors", JSON.stringify(uniqueVisitors));
+  const routeViews = getRouteViews();
+  const route = window.location.pathname.slice(0, 2048);
+  if (!routeViews.some((entry) => entry.route === route)) {
+    routeViews.push({ route, timestamp: Date.now() });
+    if (routeViews.length > 1000) routeViews.shift();
+    write("routeViews", JSON.stringify(routeViews));
+  }
+  const trafficSources = getTrafficSources();
+  if (!read("trackedTrafficSource", "sessionStorage")) {
+    const referrer = document.referrer.toLowerCase();
+    const source = !referrer
+      ? "Direct"
+      : referrer.includes("google")
+        ? "Google"
+        : referrer.includes("facebook")
+          ? "Facebook"
+          : "Others";
+    trafficSources[source] = Math.min(
+      Number.MAX_SAFE_INTEGER,
+      trafficSources[source] + 1,
+    );
+    write("trafficSources", JSON.stringify(trafficSources));
+    write("trackedTrafficSource", "true", "sessionStorage");
+  }
   return {
-    pageViews: trackPageView(),
-    uniqueVisitors: trackUniqueVisitors(),
-    routeViews: trackRouteView(window.location.pathname),
-    trafficSources: trackSourceOfTraffic(),
+    pageViews,
+    uniqueVisitors: uniqueVisitors.length,
+    routeViews,
+    trafficSources,
   };
 }
-// Expose functions for custom use
 export {
-  trackAllActivities, // Track all activities at once
-  getPageViews, // Get total page views
-  getUniqueVisitors, // Get total unique visitors
-  getRouteViews, // Get all route views
-  getTrafficSources, // Get traffic sources
+  trackAllActivities,
+  getPageViews,
+  getUniqueVisitors,
+  getRouteViews,
+  getTrafficSources,
 };

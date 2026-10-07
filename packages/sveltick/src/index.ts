@@ -1,6 +1,7 @@
 import {
   runPerformanceTracker, // All-in-one function
   getPerformanceMetrics, // Track metrics manually
+  getPerformanceSnapshot,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackLargestContentfulPaint,
@@ -25,6 +26,7 @@ import {
 export {
   runPerformanceTracker, // All-in-one function
   getPerformanceMetrics, // Track metrics manually
+  getPerformanceSnapshot,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackLargestContentfulPaint,
@@ -45,6 +47,7 @@ export {
 
 export type {
   ActivityMetrics,
+  CollectionOptions,
   ComponentRenderResult,
   ComponentRenderTime,
   MetricValue,
