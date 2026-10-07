@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import metricsimage from '../assets/metrics.svg';
 	import terminal from '../assets/terminal.svg';
 </script>
@@ -9,7 +9,7 @@
 			<h1 class="meet ibm-plex-serif-light">Meet</h1>
 			<h1 class="sveltick">Sveltick.</h1>
 		</div>
-		<img src={metricsimage} alt="metrics-image" />
+		<img src={metricsimage} alt="Performance metrics" />
 	</div>
 	<div class="flex align-center pt-16 items-center justify-center title-bottom-container">
 		<p class="w-1/3">

@@ -6,3 +6,4 @@
 .env
 /packages/sveltick/.env
 /apps/web/.env
+*.tsbuildinfo

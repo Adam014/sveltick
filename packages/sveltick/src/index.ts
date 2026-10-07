@@ -42,3 +42,15 @@ export {
   getTrafficSources,
   getUniqueVisitors,
 };
+
+export type {
+  ActivityMetrics,
+  ComponentRenderResult,
+  ComponentRenderTime,
+  MetricValue,
+  PerformanceMetrics,
+  PerformanceThresholds,
+  PerformanceTrackerOptions,
+  RouteView,
+  TrafficSources,
+} from "./types.js";

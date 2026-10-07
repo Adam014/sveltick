@@ -13,6 +13,34 @@ Welcome to **Sveltick**! This is a super lightweight 🦋 and fun **performance*
 
 ## 📥 Installation
 
+### TypeScript (unreleased source migration)
+
+The repository now includes TypeScript definitions. After building this checkout,
+ESM and CommonJS consumers receive types automatically without an `@types` package.
+The published `1.7.1` release predates this migration.
+
+```ts
+import {
+  trackComponentRender,
+  type ComponentRenderResult,
+  type PerformanceTrackerOptions,
+} from "sveltick";
+
+const options: PerformanceTrackerOptions = {
+  thresholds: { fcp: 1800 },
+};
+const result: ComponentRenderResult = trackComponentRender("Example", 12.5);
+```
+
+Public types also include `MetricValue`, `PerformanceMetrics`,
+`PerformanceThresholds`, `ComponentRenderTime`, `ActivityMetrics`, `RouteView`,
+and `TrafficSources`. Metric collectors preserve formatted `string | null`
+results, and component render results preserve their formatted strings. This
+migration does not change the existing measurement algorithms.
+
+JavaScript consumers continue importing the same functions. The CommonJS entry
+now uses `.cjs`; use `require("sveltick")` instead of an internal bundle path.
+
 Install **Sveltick** via npm:
 
 ```bash

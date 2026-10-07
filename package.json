@@ -12,11 +12,16 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "turbo run format"
+    "format": "turbo run format",
+    "check": "turbo run check"
   },
   "devDependencies": {
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "turbo": "^2.2.3"
-  }
+    "turbo": "^2.2.3",
+    "typescript": "~5.9.3",
+    "tsx": "^4.20.6",
+    "@types/node": "^22.10.0"
+  },
+  "type": "module"
 }

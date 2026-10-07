@@ -2,35 +2,43 @@
   "name": "sveltick",
   "version": "1.7.1",
   "description": "⚡️ Sveltick: A lightweight, cool performance tracking library for Svelte apps!",
-  "main": "dist/sveltick.cjs.js",
+  "main": "dist/sveltick.cjs",
   "module": "dist/sveltick.es.js",
   "exports": {
     ".": {
-      "import": "./dist/sveltick.es.js",
-      "require": "./dist/sveltick.cjs.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/sveltick.es.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/sveltick.cjs"
+      }
     }
   },
   "type": "module",
   "scripts": {
-    "test": "jest",
-    "build": "rollup -c",
-    "format": "prettier --plugin-search-dir . --write .",
+    "test": "jest --config jest.config.ts",
+    "build": "tsx scripts/build.ts",
+    "format": "prettier --write .",
     "release-patch": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version patch && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes",
     "release-minor": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version minor && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes",
-    "release-major": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version major && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes"
+    "release-major": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version major && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes",
+    "check": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json && tsc --noEmit -p tsconfig.tools.json",
+    "lint": "prettier --check .",
+    "prepack": "npm run check && npm run build"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.9",
-    "@babel/preset-env": "^7.25.9",
-    "@rollup/plugin-commonjs": "^28.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.0",
-    "babel-jest": "^29.7.0",
     "prettier": "^3.3.3",
-    "rollup": "^2.38.5",
-    "rollup-plugin-svelte": "^7.1.0",
-    "rollup-plugin-terser": "^7.0.2",
+    "rollup": "^4.24.0",
     "standard-version": "^9.5.0",
-    "svelte": "^3.38.2"
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup-plugin-dts": "^6.5.1",
+    "tslib": "^2.8.1",
+    "ts-jest": "^29.4.14",
+    "ts-node": "^10.9.2",
+    "@types/jest": "^29.5.14"
   },
   "license": "MIT",
   "repository": {
@@ -43,5 +51,11 @@
     "performance",
     "tracking",
     "lightweight"
+  ],
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
   ]
 }

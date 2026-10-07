@@ -1,38 +1,23 @@
-# create-svelte
+# Sveltick website
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+The website uses Svelte 5, SvelteKit 2, Vite, Tailwind CSS, and TypeScript. It
+currently contains the landing page; the linked documentation and showcase
+routes are not implemented yet.
 
-## Creating a project
+From the repository root:
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+```sh
+npm ci
+npm run dev --workspace web
+npm run check --workspace web
+npm run lint --workspace web
+npm run build --workspace web
+npm run preview --workspace web
 ```
 
-## Developing
+Svelte components use `<script lang="ts">`. Vite and Tailwind configuration use
+`.ts` files. The remaining JavaScript tool entry points are also type-checked.
+SvelteKit generates its supporting types with `svelte-kit sync` before checking.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+The production build uses `adapter-auto`; deployment may require an adapter for
+the chosen hosting environment.

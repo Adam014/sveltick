@@ -1,7 +1,7 @@
 import aspectRatio from '@tailwindcss/aspect-ratio';
 import typography from '@tailwindcss/typography';
 
-/** @type {import('tailwindcss').Config} */
+import type { Config } from 'tailwindcss';
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 
@@ -10,4 +10,4 @@ export default {
 	},
 
 	plugins: [typography, aspectRatio]
-};
+} satisfies Config;

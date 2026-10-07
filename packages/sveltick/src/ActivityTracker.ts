@@ -1,13 +1,17 @@
+import type { ActivityMetrics, RouteView, TrafficSources } from "./types.js";
+
 // Utility to check if code is running in a browser environment
-function isBrowser() {
+function isBrowser(): boolean {
   return (
     typeof window !== "undefined" && typeof window.localStorage !== "undefined"
   );
 }
 
 // Initialize traffic sources from localStorage, or default values if they don't exist
-let trafficSources = isBrowser()
-  ? JSON.parse(localStorage.getItem("trafficSources")) || {
+const trafficSources: TrafficSources = isBrowser()
+  ? (JSON.parse(
+      localStorage.getItem("trafficSources") ?? "null",
+    ) as TrafficSources | null) || {
       Direct: 0,
       Google: 0,
       Facebook: 0,
@@ -16,33 +20,41 @@ let trafficSources = isBrowser()
   : { Direct: 0, Google: 0, Facebook: 0, Others: 0 };
 
 // Initialize other tracking values from localStorage
-let pageViewCount = isBrowser()
-  ? parseInt(localStorage.getItem("pageViewCount")) || 0
+const pageViewCount: number = isBrowser()
+  ? parseInt(localStorage.getItem("pageViewCount") ?? "") || 0
   : 0;
-let uniqueVisitors = isBrowser()
-  ? new Set(JSON.parse(localStorage.getItem("uniqueVisitors")) || [])
+const uniqueVisitors: Set<string> = isBrowser()
+  ? new Set(
+      (JSON.parse(localStorage.getItem("uniqueVisitors") ?? "null") as
+        | string[]
+        | null) || [],
+    )
   : new Set();
-let routeViews = isBrowser()
-  ? JSON.parse(localStorage.getItem("routeViews")) || []
+const routeViews: RouteView[] = isBrowser()
+  ? (JSON.parse(localStorage.getItem("routeViews") ?? "null") as
+      | RouteView[]
+      | null) || []
   : [];
 
 // Track page views and update in localStorage, only in browser
-function trackPageView() {
+function trackPageView(): number {
   if (isBrowser()) {
     const updatedPageViewCount = pageViewCount + 1;
-    localStorage.setItem("pageViewCount", updatedPageViewCount);
+    localStorage.setItem("pageViewCount", String(updatedPageViewCount));
     return updatedPageViewCount;
   }
   return 0; // Return 0 if not in browser
 }
 
 // Get page view count
-function getPageViews() {
-  return isBrowser() ? parseInt(localStorage.getItem("pageViewCount")) || 0 : 0;
+function getPageViews(): number {
+  return isBrowser()
+    ? parseInt(localStorage.getItem("pageViewCount") ?? "") || 0
+    : 0;
 }
 
 // Track unique visitors using localStorage to persist visitorId, only in browser
-function trackUniqueVisitors() {
+function trackUniqueVisitors(): number {
   if (isBrowser()) {
     let visitorId = localStorage.getItem("visitorId");
     if (!visitorId) {
@@ -57,14 +69,15 @@ function trackUniqueVisitors() {
 }
 
 // Get unique visitor count
-function getUniqueVisitors() {
+function getUniqueVisitors(): number {
   return isBrowser()
-    ? JSON.parse(localStorage.getItem("uniqueVisitors")).length || 0
+    ? (JSON.parse(localStorage.getItem("uniqueVisitors") ?? "null") as string[])
+        .length || 0
     : 0;
 }
 
 // Track all viewed routes and associate with the user ID, but prevent duplicate routes
-function trackRouteView(route) {
+function trackRouteView(route: string): RouteView[] {
   if (isBrowser()) {
     const newRoute = { route, timestamp: Date.now() };
 
@@ -79,14 +92,16 @@ function trackRouteView(route) {
 }
 
 // Get all route views
-function getRouteViews() {
+function getRouteViews(): RouteView[] {
   return isBrowser()
-    ? JSON.parse(localStorage.getItem("routeViews")) || []
+    ? (JSON.parse(localStorage.getItem("routeViews") ?? "null") as
+        | RouteView[]
+        | null) || []
     : [];
 }
 
 // Track the source of traffic and update in localStorage
-function trackSourceOfTraffic() {
+function trackSourceOfTraffic(): TrafficSources {
   if (isBrowser()) {
     // Only track the source once per session
     if (!sessionStorage.getItem("trackedTrafficSource")) {
@@ -118,14 +133,16 @@ function trackSourceOfTraffic() {
 }
 
 // Get traffic sources
-function getTrafficSources() {
+function getTrafficSources(): TrafficSources {
   return isBrowser()
-    ? JSON.parse(localStorage.getItem("trafficSources")) || trafficSources
+    ? (JSON.parse(
+        localStorage.getItem("trafficSources") ?? "null",
+      ) as TrafficSources | null) || trafficSources
     : { Direct: 0, Google: 0, Facebook: 0, Others: 0 };
 }
 
 // Track all activities and return an object with data
-function trackAllActivities() {
+function trackAllActivities(): ActivityMetrics {
   return {
     pageViews: trackPageView(),
     uniqueVisitors: trackUniqueVisitors(),

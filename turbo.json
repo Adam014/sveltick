@@ -2,20 +2,24 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "test", "format", "lint"],
-      "outputs": ["dist/**"]
+      "dependsOn": ["^build", "check", "test", "lint"],
+      "outputs": ["dist/**", ".svelte-kit/**", "build/**"]
     },
     "dev": {
       "dependsOn": ["build"],
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "lint": {
       "outputs": []
     },
     "format": {
-      "outputs": []
+      "cache": false
     },
     "test": {
+      "outputs": []
+    },
+    "check": {
       "outputs": []
     }
   }
