@@ -31,3 +31,11 @@
 - Keep FID as an explicit legacy collector, outside aggregate collection.
 - Validate supplied component durations and bound their history.
 - Include the bundled dependency license in package notices.
+
+### Tracker lifecycle
+
+- Add createTracker with idempotent start, stop/resume, subscribe and dispose.
+- Expose isolated numeric metric snapshots with units and availability states.
+- Bound operation/component history by entry count and retention time.
+- Add manual interval measurement and history reset without restarting Web Vitals.
+- Isolate synchronous and asynchronous subscriber failures.

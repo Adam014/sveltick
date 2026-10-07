@@ -57,3 +57,12 @@ export type {
   RouteView,
   TrafficSources,
 } from "./types.js";
+
+export { createTracker } from "./Tracker.js";
+export type {
+  Tracker,
+  TrackerOptions,
+  TrackerSnapshot,
+  ComponentMeasurement,
+} from "./Tracker.js";
+export type { VitalName, VitalResult, VitalResults } from "./VitalsEngine.js";

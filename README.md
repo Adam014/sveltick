@@ -5,6 +5,7 @@ A small performance and traffic tracking library, with a SvelteKit website.
 - [`packages/sveltick`](packages/sveltick/README.md): the library and its public API.
 - [`apps/web`](apps/web/README.md): the website.
 - [TypeScript development and compatibility](docs/typescript.md).
+- [Tracker lifecycle and numeric snapshots](docs/tracker.md).
 - [Collection and storage contract](docs/collection.md).
 - [Changelog](CHANGELOG.md).
 

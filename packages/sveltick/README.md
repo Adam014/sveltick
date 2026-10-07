@@ -13,6 +13,28 @@ Welcome to **Sveltick**! This is a super lightweight 🦋 and fun **performance*
 
 ## 📥 Installation
 
+### Tracker lifecycle (unreleased)
+
+```ts
+import { createTracker } from "sveltick";
+
+const tracker = createTracker({ maxComponentEntries: 100 });
+tracker.start(); // Safe to call repeatedly; SSR is a no-op.
+const unsubscribe = tracker.subscribe((snapshot) => {
+  console.log(snapshot.metrics.INP.value, snapshot.metrics.INP.status);
+});
+// When the consumer is destroyed:
+unsubscribe();
+tracker.dispose();
+```
+
+Snapshots contain numeric values, units, availability states and timestamps.
+`getSnapshot()` starts no collectors and returns independent data. `stop()`
+freezes this instance's metrics and stops delivery; `start()` resumes it.
+`dispose()` also removes subscribers. Document Web Vitals keep their shared
+backend; stopping a subscriber does not claim to disconnect that backend.
+See [tracker lifecycle](https://github.com/Adam014/sveltick/blob/main/docs/tracker.md).
+
 ### Reliability and collection (unreleased)
 
 Imports do not access browser storage. Missing or malformed storage is handled
