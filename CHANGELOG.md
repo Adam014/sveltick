@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.0-next.0 — unreleased preview
 
 - Migrate library sources, Jest tests, build tooling, and website code to strict
   TypeScript; export public configuration and result types.
@@ -58,3 +58,15 @@
 - Return reports from runPerformanceTracker/runGamification (updated result types).
 - Add opt-in onReport delivery, bounded coalescing, timeout-aware flush and error counts.
 - Add a downloadable JSON report to the live showcase.
+
+### Website and distribution
+
+- Implement introduction, documentation and development-notes routes; fix the
+  homepage layout at mobile widths and remove nested interactive elements.
+- Update development dependencies, remove unused tooling and use Tailwind's Vite plugin.
+- Resolve library source during development and package exports in production.
+- Add validation CI on Node 22/24/26 and test/lint gates before packing.
+- Separate validation, version preparation, packing and publication; remove release
+  scripts that automatically staged all files, committed, tagged and pushed.
+- Fill the MIT license files and add migration, compatibility and release guides.
+- Mark the breaking API changes as a 2.0 prerelease; no npm publication is implied.

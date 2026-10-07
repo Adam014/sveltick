@@ -9,11 +9,12 @@ A small performance and traffic tracking library, with a SvelteKit website.
 - [Reports, scoring and export](docs/reports.md).
 - [Tracker lifecycle and numeric snapshots](docs/tracker.md).
 - [Collection and storage contract](docs/collection.md).
+- [Migration from 1.x](docs/migration-v2.md), [browser compatibility](docs/compatibility.md) and [release preparation](docs/releasing.md).
 - [Changelog](CHANGELOG.md).
 
 ## Development
 
-Use npm from the repository root:
+Use Node 22.12+ and npm from the repository root:
 
 ```sh
 npm ci

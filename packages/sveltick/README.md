@@ -2,7 +2,7 @@
 
 Document performance and navigation activity for Svelte and SvelteKit.
 
-**Unreleased source:** the APIs below are on the repository's main branch.
+**Unreleased 2.0.0-next.0 preview:** the APIs below are on the repository's main branch.
 Published npm 1.7.1 predates these fixes. Build this workspace or install its
 packed archive to try them before the next package release.
 
@@ -112,4 +112,5 @@ ActivitySnapshot, ActivityOptions and the compatibility API's existing types.
 No TypeScript runtime or framework is needed for the core API.
 
 [Development and compatibility](https://github.com/Adam014/sveltick/blob/main/docs/typescript.md)
+· [Migration from 1.x](https://github.com/Adam014/sveltick/blob/main/docs/migration-v2.md)
 · [Changelog](https://github.com/Adam014/sveltick/blob/main/CHANGELOG.md)

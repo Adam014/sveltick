@@ -1,8 +1,6 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Inika:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Iceberg&display=swap');
+@import 'tailwindcss';
 
 :root {
 	--goldish: #dabb42;
@@ -69,10 +67,6 @@ nav {
 	text-decoration: underline;
 }
 
-.title-bottom-container {
-	gap: 34rem;
-}
-
 .black-button {
 	background: #0b090a;
 	color: #fff;
@@ -87,17 +81,6 @@ nav {
 .white-button:hover,
 .black-button:hover {
 	opacity: 0.8;
-}
-
-.meet {
-	font-size: 15rem; /* Increase the font size */
-	text-transform: uppercase;
-}
-
-.sveltick {
-	color: var(--goldish);
-	font-size: 5.3rem;
-	letter-spacing: 0.55em;
 }
 
 .content-page {
@@ -151,4 +134,32 @@ td {
 :focus-visible {
 	outline: 2px solid var(--goldish);
 	outline-offset: 4px;
+}
+
+.content-page a:not(.black-button) {
+	text-decoration: underline;
+	text-underline-offset: 0.2rem;
+}
+.content-page pre {
+	max-width: 100%;
+	overflow-x: auto;
+	padding: 1rem;
+	border: 1px solid var(--grey);
+	border-radius: 0.5rem;
+	margin: 1rem 0;
+}
+.content-page code {
+	font-family: ui-monospace, monospace;
+	font-size: 0.9em;
+}
+.content-page p code {
+	overflow-wrap: anywhere;
+}
+.guide-list {
+	padding: 0;
+	list-style: none;
+}
+.guide-list li {
+	border-bottom: 1px solid var(--grey);
+	padding-bottom: 1rem;
 }

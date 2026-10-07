@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { getContext, onMount, tick } from 'svelte';
 	import { createPerformanceReport, type ActivitySnapshot } from 'sveltick';
 	import { trackingKey, type DemoTracking } from '$lib/tracking';
@@ -77,7 +78,7 @@
 				></thead
 			>
 			<tbody
-				>{#each Object.values(performance.metrics) as metric}<tr
+				>{#each Object.values(performance.metrics) as metric (metric.name)}<tr
 						><th scope="row">{metric.name}</th><td
 							>{metric.value === null ? '—' : metric.value.toFixed(metric.unit === 'score' ? 4 : 1)}
 							{metric.value === null ? '' : metric.unit}</td
@@ -103,7 +104,7 @@
 	{#if recommendations.length}
 		<h2>Where to look next</h2>
 		<ul>
-			{#each recommendations as metric}<li>
+			{#each recommendations as metric (metric.name)}<li>
 					<strong>{metric.name}:</strong>
 					{metric.recommendation}
 				</li>{/each}
@@ -122,7 +123,7 @@
 		This demo keeps data locally and sends nothing to a server.
 	</p>
 	<div class="action-row">
-		<a href="/showcase/next" class="black-button">Visit another route</a><button
+		<a href={resolve('/showcase/next')} class="black-button">Visit another route</a><button
 			class="black-button"
 			onclick={resetActivity}>Reset local activity</button
 		>

@@ -1,11 +1,15 @@
+<script lang="ts">
+	import { resolve } from '$app/paths';
+</script>
+
 <a class="skip-link" href="#main">Skip to content</a>
 <nav class="site-nav grey-underline" aria-label="Main navigation">
-	<a class="brand" href="/">Sveltick.</a>
+	<a class="brand" href={resolve('/')}>Sveltick.</a>
 	<div class="nav-links">
-		<a href="/introduction">Introduction</a>
-		<a href="/documentation">Documentation</a>
-		<a href="/blog">Blog</a>
-		<a href="/showcase">Showcase</a>
+		<a href={resolve('/introduction')}>Introduction</a>
+		<a href={resolve('/documentation')}>Documentation</a>
+		<a href={resolve('/blog')}>Blog</a>
+		<a href={resolve('/showcase')}>Showcase</a>
 	</div>
 </nav>
 

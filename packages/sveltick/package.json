@@ -1,7 +1,7 @@
 {
   "name": "sveltick",
-  "version": "1.7.1",
-  "description": "⚡️ Sveltick: A lightweight, cool performance tracking library for Svelte apps!",
+  "version": "2.0.0-next.0",
+  "description": "Document performance and navigation activity for Svelte and SvelteKit",
   "main": "dist/sveltick.cjs",
   "module": "dist/sveltick.es.js",
   "exports": {
@@ -21,22 +21,18 @@
     "test": "jest --config jest.config.ts",
     "build": "tsx scripts/build.ts",
     "format": "prettier --write .",
-    "release-patch": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version patch && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes",
-    "release-minor": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version minor && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes",
-    "release-major": "npm run format && npm run build && git add . && git commit -m \"build: new release\" && npm version major && git push origin main && git push origin --tags && gh release create $(git describe --tags) --generate-notes",
     "check": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json && tsc --noEmit -p tsconfig.tools.json",
     "lint": "prettier --check .",
-    "prepack": "npm run check && npm run build"
+    "prepack": "npm run check && npm test -- --runInBand && npm run lint && npm run build"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.3",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "prettier": "^3.3.3",
     "rollup": "^4.24.0",
     "rollup-plugin-dts": "^6.5.1",
-    "standard-version": "^9.5.0",
     "ts-jest": "^29.4.14",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1"
