@@ -10,7 +10,7 @@ its own copy. A throwing or rejecting callback does not interrupt other consumer
 
 `getSnapshot()` starts no observers. A snapshot has `schemaVersion: 1`,
 `documentId`, `sessionId`, `capturedAt`, `running`, `metrics`, `components` and
-`droppedComponentEntries`. Metric names are FCP, LCP, CLS, INP and TTFB. Each
+`droppedComponentEntries` and `exportErrors`. Metric names are FCP, LCP, CLS, INP and TTFB. Each
 metric carries a numeric `value` or null, its unit, status, rating, metric ID,
 update timestamp and navigation type. Status is pending, available, unsupported
 or error. Available values can change; this is not a final page report. CLS zero
@@ -44,3 +44,9 @@ const durationMs = end();
 const snapshot = tracker.getSnapshot();
 tracker.dispose();
 ```
+
+An optional `onReport` callback receives structured document reports when metric
+state refreshes. Its pending work is bounded and failures are isolated.
+`flush({ timeoutMs: 1000 })` waits for that queue, returning false on timeout.
+`stop()` drops queued exports and `dispose()` closes the sink; an already
+started user callback cannot be cancelled by this API. See [reports](reports.md).

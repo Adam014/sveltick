@@ -1,4 +1,6 @@
-import { readVitals, waitForVital } from "./VitalsEngine.js";
+import { createPerformanceReport } from "./Report.js";
+import type { PerformanceReport } from "./Report.js";
+import { readDocumentId, readVitals, waitForVital } from "./VitalsEngine.js";
 import type { VitalName } from "./VitalsEngine.js";
 import type {
   CollectionOptions,
@@ -15,7 +17,7 @@ interface FirstInputEntry extends PerformanceEntry {
 
 // Default thresholds and configurations for metrics
 const defaultThresholds: PerformanceThresholds = {
-  fcp: 2000, // Default: 2s for FCP
+  fcp: 1800, // Standard good FCP threshold
   lcp: 2500, // Default: 2.5s for LCP
   tti: 3000, // Default: 3s for TTI
   cls: 0.1, // Default: CLS should be below 0.1
@@ -25,12 +27,10 @@ const defaultThresholds: PerformanceThresholds = {
   componentRenderTime: 500, // Default: 500ms for component render time
 };
 
-const MAX_SCORE = 100;
-
 // All-in-One Main Function with Presets
 async function runPerformanceTracker(
   options: PerformanceTrackerOptions = {},
-): Promise<void> {
+): Promise<PerformanceReport> {
   const {
     trackMetrics = true, // Enable or disable tracking of all metrics
     showAlerts = true, // Enable or disable performance alerts
@@ -55,9 +55,9 @@ async function runPerformanceTracker(
 
   // Step 3: Run Gamification if enabled
   if (enableGamification) {
-    const score = calculatePerformanceScore();
-    provideFeedback(score);
+    provideFeedback(getPerformanceReport());
   }
+  return getPerformanceReport();
 }
 
 // Tracking Metrics Data
@@ -242,10 +242,13 @@ function checkPerformanceAlerts(
   thresholds: Partial<PerformanceThresholds> | null = {},
 ): void {
   const performanceMetrics = getPerformanceSnapshot();
-  const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } = {
-    ...defaultThresholds,
-    ...thresholds,
-  };
+  const merged = { ...defaultThresholds };
+  for (const key of Object.keys(merged) as (keyof PerformanceThresholds)[]) {
+    const value = thresholds?.[key];
+    if (typeof value === "number" && Number.isFinite(value) && value >= 0)
+      merged[key] = value;
+  }
+  const { fcp, lcp, tti, cls, fid, inp, ttfb, componentRenderTime } = merged;
 
   if (
     performanceMetrics.firstContentfulPaint != null &&
@@ -319,66 +322,31 @@ function checkPerformanceAlerts(
   });
 }
 
-// Calculate Performance Score - Skip missing metrics
-function calculatePerformanceScore(): number {
-  const performanceMetrics = getPerformanceSnapshot();
-  let score = MAX_SCORE;
-
-  const metricDifferences = [
-    (Number(performanceMetrics.firstContentfulPaint) - defaultThresholds.fcp) /
-      100,
-    (Number(performanceMetrics.largestContentfulPaint) -
-      defaultThresholds.lcp) /
-      100,
-    (Number(performanceMetrics.timeToInteractive) - defaultThresholds.tti) /
-      100,
-    (Number(performanceMetrics.cumulativeLayoutShift) - defaultThresholds.cls) *
-      100,
-    (Number(performanceMetrics.firstInputDelay) - defaultThresholds.fid) / 100,
-    (Number(performanceMetrics.interactionToNextPaint) -
-      defaultThresholds.inp) /
-      100,
-    (Number(performanceMetrics.timeToFirstByte) - defaultThresholds.ttfb) / 100,
-  ];
-
-  metricDifferences.forEach((diff) => {
-    if (diff > 0) score -= diff;
+/** Reads a structured report without starting new collection. */
+function getPerformanceReport(): PerformanceReport {
+  return createPerformanceReport({
+    documentId: readDocumentId(),
+    capturedAt: Date.now(),
+    metrics: readVitals(),
   });
-
-  performanceMetrics.componentRenderTimes.forEach(({ renderTime }) => {
-    const diff = (renderTime - defaultThresholds.componentRenderTime) / 100;
-    if (diff > 0) score -= diff;
-  });
-
-  return Math.max(0, Math.round(score)); // Ensure score doesn't go below 0
+}
+/** Custom diagnostic score. Missing metrics make the score unavailable. */
+function calculatePerformanceScore(): number | null {
+  return getPerformanceReport().score;
 }
 
-// Provide Feedback
-function provideFeedback(score: number): void {
-  const feedbackMap = [
-    {
-      threshold: 90,
-      message: `🏆 Excellent! Your score is ${score}/100. Keep up the great work!`,
-    },
-    {
-      threshold: 70,
-      message: `👍 Good job! Your score is ${score}/100. Some improvements needed.`,
-    },
-    {
-      threshold: 0,
-      message: `⚠️ Needs Improvement! Your score is ${score}/100. Optimize for better performance.`,
-    },
-  ];
-
-  const feedback = feedbackMap.find((fb) => score >= fb.threshold);
-  console.log(feedback?.message);
+function provideFeedback(report: PerformanceReport): void {
+  console.log(
+    `Document rating: ${report.overallRating ?? "incomplete"}; measured ${report.coverage.available}/${report.coverage.total}; Sveltick diagnostic score: ${report.score ?? "N/A"}.`,
+  );
 }
 
 // Run Gamification
-async function runGamification(): Promise<void> {
+async function runGamification(): Promise<PerformanceReport> {
   await getPerformanceMetrics(); // Ensure metrics are gathered first
-  const score = calculatePerformanceScore();
-  provideFeedback(score);
+  const report = getPerformanceReport();
+  provideFeedback(report);
+  return report;
 }
 
 /** Waits for a bounded snapshot; ongoing document measurement is not restarted. */
@@ -400,6 +368,7 @@ export {
   runPerformanceTracker, // All-in-one function
   getPerformanceMetrics, // Track metrics manually
   getPerformanceSnapshot,
+  getPerformanceReport,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackLargestContentfulPaint,

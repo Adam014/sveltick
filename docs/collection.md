@@ -27,7 +27,8 @@ entries. The asynchronous activity API adds transactional persistence and
 configurable retention; see [navigation activity](activity.md).
 
 Alerts read the actual collected state and merge partial thresholds with
-defaults. Missing results are skipped. The legacy score will be updated separately. A bounded result is not a final
+defaults. Missing results are skipped. The diagnostic score is null until all five document metrics are available.
+See [report scoring](reports.md). A bounded result is not a final
 Core Web Vitals report.
 
 FCP, LCP, CLS, INP and TTFB use bundled web-vitals 6.2.3 with reportAllChanges.

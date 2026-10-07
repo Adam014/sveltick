@@ -5,13 +5,13 @@ beforeEach(async () => {
 });
 
 describe("PerformanceTracker compatibility API", () => {
-  test("calculatePerformanceScore accounts for recorded component durations", () => {
-    expect(api.calculatePerformanceScore()).toBe(100);
+  test("calculatePerformanceScore stays unavailable without document metrics", () => {
+    expect(api.calculatePerformanceScore()).toBeNull();
     expect(api.trackComponentRender("ComponentA", 2500)).toEqual({
       name: "ComponentA",
       renderTime: "2500.00",
     });
-    expect(api.calculatePerformanceScore()).toBe(80);
+    expect(api.calculatePerformanceScore()).toBeNull();
   });
   test("FCP resolves null when the browser API is unavailable", async () => {
     await expect(

@@ -49,3 +49,12 @@
 - Record repeat routes in the synchronous compatibility API.
 - Integrate the library in the website and add a live showcase with a second route.
 - Make shared navigation wrap on mobile and provide a keyboard skip link.
+
+### Reports and export
+
+- Add structured reports with measured coverage, ratings and practical guidance.
+- Return null instead of 100 when a diagnostic score has incomplete inputs;
+  document the custom five-band model and exclude component history from it.
+- Return reports from runPerformanceTracker/runGamification (updated result types).
+- Add opt-in onReport delivery, bounded coalescing, timeout-aware flush and error counts.
+- Add a downloadable JSON report to the live showcase.

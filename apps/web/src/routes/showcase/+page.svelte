@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext, onMount, tick } from 'svelte';
-	import type { ActivitySnapshot } from 'sveltick';
+	import { createPerformanceReport, type ActivitySnapshot } from 'sveltick';
 	import { trackingKey, type DemoTracking } from '$lib/tracking';
 
 	const tracking = getContext<DemoTracking>(trackingKey);
@@ -8,6 +8,10 @@
 	let activity = $state<ActivitySnapshot | null>(null);
 	let clicks = $state(0);
 	let error = $state('');
+	const report = $derived(createPerformanceReport(performance));
+	const recommendations = $derived(
+		Object.values(report.metrics).filter((metric) => metric.recommendation)
+	);
 
 	onMount(() => {
 		const offPerformance = tracking.performance.subscribe((value) => {
@@ -21,6 +25,16 @@
 			offActivity();
 		};
 	});
+	function downloadReport() {
+		const url = URL.createObjectURL(
+			new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' })
+		);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'sveltick-performance.json';
+		link.click();
+		setTimeout(() => URL.revokeObjectURL(url), 0);
+	}
 	async function updateCounter() {
 		const end = tracking.performance.measure('Counter update');
 		clicks += 1;
@@ -50,6 +64,11 @@
 		These values come from this browser. They update as you interact; unavailable metrics remain
 		clearly marked.
 	</p>
+	<p>
+		Measured: {report.coverage.available}/{report.coverage.total}. Custom diagnostic score:
+		<strong>{report.score === null ? 'Not enough data' : `${report.score}/100`}</strong>.
+	</p>
+	<p>This score averages five metric rating bands. It is not a Lighthouse score.</p>
 	<div class="table-scroll">
 		<table>
 			<caption>Document performance</caption>
@@ -80,6 +99,16 @@
 		Last update interval: {performance.components.at(-1)?.durationMs.toFixed(2) ?? '—'} ms. This measures
 		the counter update through Svelte’s next flush.
 	</p>
+	<button class="black-button" onclick={downloadReport}>Download JSON report</button>
+	{#if recommendations.length}
+		<h2>Where to look next</h2>
+		<ul>
+			{#each recommendations as metric}<li>
+					<strong>{metric.name}:</strong>
+					{metric.recommendation}
+				</li>{/each}
+		</ul>
+	{/if}
 	<h2>Activity in this browser</h2>
 	<p>
 		Views since reset: <strong data-testid="page-views">{activity?.pageViews ?? '…'}</strong>.

@@ -63,6 +63,30 @@ to automatically profile Svelte rendering. History has count and age limits.
 [Tracker lifecycle](https://github.com/Adam014/sveltick/blob/main/docs/tracker.md)
 · [Metric collection](https://github.com/Adam014/sveltick/blob/main/docs/collection.md)
 
+## Reports and optional export
+
+```ts
+import { createTracker, createPerformanceReport } from "sveltick";
+const tracker = createTracker({
+  onReport: async (report) => {
+    // Pass this bounded report to your own collector or transport.
+    console.log(report.coverage, report.metrics.INP);
+  },
+});
+tracker.start();
+const report = createPerformanceReport(tracker.getSnapshot());
+const drained = await tracker.flush({ timeoutMs: 1000 });
+tracker.dispose();
+```
+
+Reports show available/missing coverage, per-metric ratings and recommendations.
+The optional custom score is null until all five metrics are measured. It is
+not a Lighthouse score. Export callbacks are isolated, with one in flight and
+only the latest report queued. `flush` returns false on timeout; callback failure
+counts are available as `getSnapshot().exportErrors`.
+
+[Report schema and scoring](https://github.com/Adam014/sveltick/blob/main/docs/reports.md)
+
 ## Compatibility API
 
 The existing standalone collectors and `getPerformanceMetrics({ timeoutMs })`
@@ -72,7 +96,9 @@ independent copy of current results. LCP/CLS/INP continue updating after a
 bounded request finishes; its result is not a final page-lifetime report.
 
 TTI is deprecated and returns null because the old load timestamp was not TTI.
-FID is an explicit legacy collector outside aggregate collection. Browser alerts
+FID is an explicit legacy collector outside aggregate collection.
+`runPerformanceTracker()` and `runGamification()` now return a structured report;
+`calculatePerformanceScore()` is nullable when data is incomplete. Browser alerts
 use collected state and merged thresholds. The old synchronous activity API
 retains its localStorage keys and memory fallback, but is not transactional
 across tabs; prefer createActivityTracker. SSR imports are safe and record no

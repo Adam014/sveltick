@@ -1,3 +1,6 @@
+import { createPerformanceReport } from "./Report.js";
+import type { PerformanceReport } from "./Report.js";
+import { createReportSink } from "./ReportSink.js";
 import {
   readDocumentId,
   readVitals,
@@ -20,8 +23,11 @@ export interface TrackerSnapshot {
   metrics: VitalResults;
   components: ComponentMeasurement[];
   droppedComponentEntries: number;
+  exportErrors: number;
 }
 export interface TrackerOptions {
+  /** Optional consumer; no transport is installed by the library. */
+  onReport?: (report: PerformanceReport) => void | Promise<void>;
   /** Retained operation/component measurements, default 100, maximum 1000. */
   maxComponentEntries?: number;
   /** Component retention in ms, default 30 minutes, maximum 24 hours. */
@@ -32,6 +38,8 @@ export interface Tracker {
   stop(): void;
   dispose(): void;
   getSnapshot(): TrackerSnapshot;
+  /** Waits for the export callback queue; false means the deadline elapsed. */
+  flush(options?: { timeoutMs?: number }): Promise<boolean>;
   subscribe(
     listener: (snapshot: TrackerSnapshot) => void | Promise<void>,
   ): () => void;
@@ -56,6 +64,7 @@ const now = (): number =>
 
 /** A subscriber to the document backend with isolated, bounded local history. */
 export function createTracker(options: TrackerOptions = {}): Tracker {
+  const sink = createReportSink(options.onReport);
   const limit = bounded(options.maxComponentEntries, 100, 1000);
   const retention = bounded(
     options.retentionMs,
@@ -94,6 +103,7 @@ export function createTracker(options: TrackerOptions = {}): Tracker {
       ) as VitalResults,
       components: components.map((entry) => ({ ...entry })),
       droppedComponentEntries,
+      exportErrors: sink.errors(),
     };
   }
   function deliver(
@@ -115,6 +125,7 @@ export function createTracker(options: TrackerOptions = {}): Tracker {
     metrics = readVitals();
     documentId = readDocumentId();
     emit();
+    if (running) sink.send(createPerformanceReport(getSnapshot()));
   }
   function start(): void {
     ensureUsable();
@@ -128,6 +139,7 @@ export function createTracker(options: TrackerOptions = {}): Tracker {
     running = false;
     unsubscribe?.();
     unsubscribe = undefined;
+    sink.clear();
   }
   function recordComponent(
     name: string,
@@ -153,9 +165,11 @@ export function createTracker(options: TrackerOptions = {}): Tracker {
     stop,
     getSnapshot,
     recordComponent,
+    flush: (options) => sink.flush(options?.timeoutMs),
     dispose() {
       stop();
       listeners.clear();
+      sink.close();
       disposed = true;
     },
     subscribe(listener) {

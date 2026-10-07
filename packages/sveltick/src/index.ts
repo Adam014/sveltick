@@ -2,6 +2,7 @@ import {
   runPerformanceTracker, // All-in-one function
   getPerformanceMetrics, // Track metrics manually
   getPerformanceSnapshot,
+  getPerformanceReport,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackLargestContentfulPaint,
@@ -27,6 +28,7 @@ export {
   runPerformanceTracker, // All-in-one function
   getPerformanceMetrics, // Track metrics manually
   getPerformanceSnapshot,
+  getPerformanceReport,
   trackFirstContentfulPaint,
   trackTimeToInteractive,
   trackLargestContentfulPaint,
@@ -82,3 +84,11 @@ export type {
   SvelteKitOptions,
   SvelteKitTracking,
 } from "./SvelteKit.js";
+
+export { createPerformanceReport } from "./Report.js";
+export type {
+  PerformanceReport,
+  PerformanceReportInput,
+  PerformanceRating,
+  MetricAssessment,
+} from "./Report.js";
