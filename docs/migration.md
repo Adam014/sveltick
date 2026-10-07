@@ -1,12 +1,13 @@
-# Migrating from 1.x to the 2.0 preview
+# Migrating from published 1.7.1 to development source
 
-`2.0.0-next.0` is an unreleased source preview. The examples in this repository
-describe that preview; installing published npm 1.7.1 does not provide this API.
-Build and pack this workspace to evaluate it before publication.
+The package version remains `1.7.1` during development. The changes described
+here are unreleased and differ from published npm 1.7.1. Build and pack this
+workspace to evaluate them. Choose the next release version when preparing
+an actual release.
 
 ## Changes to existing calls
 
-| API or behavior | 2.0 behavior |
+| API or behavior | Development behavior |
 | --- | --- |
 | `calculatePerformanceScore()` | `number \| null`; incomplete measurements produce null. |
 | `runPerformanceTracker()` / `runGamification()` | `Promise<PerformanceReport>` instead of a void-only result. |

@@ -22,7 +22,7 @@ renders numeric snapshots, local activity and structured reports, and downloads
 JSON without sending it to a server. Its opt-in IndexedDB namespace is
 `sveltick-demo`. Use the showcase's reset button to clear that namespace's counts.
 
-Source APIs are an unreleased 2.0 preview; published npm 1.7.1 differs. The website
+Source API changes are unreleased; published npm 1.7.1 differs. The website
 guides users to build and install an archive instead of claiming those APIs are
 already available from the registry.
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0-next.0 — unreleased preview
+## Unreleased
 
 - Migrate library sources, Jest tests, build tooling, and website code to strict
   TypeScript; export public configuration and result types.
@@ -69,4 +69,4 @@
 - Separate validation, version preparation, packing and publication; remove release
   scripts that automatically staged all files, committed, tagged and pushed.
 - Fill the MIT license files and add migration, compatibility and release guides.
-- Mark the breaking API changes as a 2.0 prerelease; no npm publication is implied.
+- Keep the package version at 1.7.1 during development; changes remain unreleased.

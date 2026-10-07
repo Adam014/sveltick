@@ -5,13 +5,13 @@
 <svelte:head><title>Development notes — Sveltick</title></svelte:head>
 <section class="content-page">
 	<p class="goldish">DEVELOPMENT NOTES</p>
-	<h1>Preparing Sveltick 2.0.</h1>
+	<h1>Improving Sveltick.</h1>
 	<article>
 		<h2>Trust the measurement before the score</h2>
 		<p>
-			The upcoming release uses the web-vitals measurement backend for FCP, LCP, CLS, INP and TTFB.
-			Later layout shifts and interaction latency can update a snapshot throughout the document
-			lifetime.
+			The current development source uses the web-vitals measurement backend for FCP, LCP, CLS, INP
+			and TTFB. Later layout shifts and interaction latency can update a snapshot throughout the
+			document lifetime.
 		</p>
 		<p>
 			Incomplete data now remains visible: missing values are null, coverage is explicit, and a
@@ -29,9 +29,8 @@
 				href="https://github.com/Adam014/sveltick/blob/main/CHANGELOG.md">changelog</a
 			>
 			for implementation details and the
-			<a href="https://github.com/Adam014/sveltick/blob/main/docs/migration-v2.md"
-				>migration guide</a
-			> for API changes.
+			<a href="https://github.com/Adam014/sveltick/blob/main/docs/migration.md">migration guide</a> for
+			API changes.
 		</p>
 		<a class="black-button" href={resolve('/showcase')}>Explore the changes</a>
 	</article>

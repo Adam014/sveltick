@@ -23,7 +23,7 @@
 			'Coverage, custom score, recommendations and bounded delivery.'
 		],
 		[
-			'migration-v2',
+			'migration',
 			'Migrating from 1.x',
 			'Changed return types, metric semantics and compatible entry points.'
 		],
@@ -45,7 +45,7 @@
 	<p class="goldish">DOCUMENTATION</p>
 	<h1>Use Sveltick in your app.</h1>
 	<p>
-		The guides cover the 2.0 preview in this repository. Start with the <a
+		The guides cover the unreleased changes in this repository. Start with the <a
 			href={resolve('/introduction')}>installation guide</a
 		>
 		or try the <a href={resolve('/showcase')}>working example</a>.

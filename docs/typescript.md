@@ -32,7 +32,7 @@ activity.dispose();
 `TrackerSnapshot.metrics` contains numeric values or null, with explicit units,
 status and timestamps. `PerformanceReport.score` is nullable. Legacy collectors
 retain `Promise<string | null>`; they do not return the numeric snapshot format.
-See [migration from 1.x](migration-v2.md) for intentional contract changes.
+See [migration from 1.x](migration.md) for intentional contract changes.
 
 ## Distribution
 

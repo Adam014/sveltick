@@ -26,13 +26,14 @@ tracker.dispose();`;
 		without a framework; the SvelteKit adapter connects completed navigations to the same tracking
 		session.
 	</p>
-	<h2>Try the 2.0 preview</h2>
+	<h2>Try the development source</h2>
 	<p>
-		This website demonstrates the upcoming API. npm version 1.7.1 predates these changes. Use Node
-		22.12 or newer to build the repository, then install the generated archive in your app.
+		This website demonstrates unreleased changes. The package version remains 1.7.1, while the
+		published npm package predates these changes. Use Node 22.12 or newer to build the repository,
+		then install the generated archive in your app.
 	</p>
 	<pre><code>{setup}</code></pre>
-	<pre><code>npm install /path/to/sveltick-2.0.0-next.0.tgz</code></pre>
+	<pre><code>npm install /path/to/sveltick-1.7.1.tgz</code></pre>
 	<p>Run <code>npm run dev</code> in the repository to explore this website locally.</p>
 	<h2>Read a numeric snapshot</h2>
 	<pre><code>{example}</code></pre>

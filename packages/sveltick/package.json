@@ -1,6 +1,6 @@
 {
   "name": "sveltick",
-  "version": "2.0.0-next.0",
+  "version": "1.7.1",
   "description": "Document performance and navigation activity for Svelte and SvelteKit",
   "main": "dist/sveltick.cjs",
   "module": "dist/sveltick.es.js",

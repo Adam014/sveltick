@@ -37,8 +37,9 @@
 				<a href={resolve('/showcase')} class="black-button">Try the live demo</a>
 			</div>
 			<p class="release-note">
-				Previewing the upcoming 2.0 API. <a href={resolve('/introduction')}>Build from source</a> to try
-				it today.
+				Explore the latest unreleased changes. <a href={resolve('/introduction')}
+					>Build from source</a
+				> to try it today.
 			</p>
 		</div>
 	</div>

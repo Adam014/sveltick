@@ -20,16 +20,14 @@ The package bundles web-vitals and includes its Apache-2.0 notice; Sveltick uses
 
 ## Prepare a version separately
 
-The current source preview is `2.0.0-next.0`; it is not a declaration that an npm
-release has been published. When preparing a release, select the intended
-version explicitly, for example:
+The package version remains `1.7.1` during development. Current changes are
+unreleased; a new release version has not been selected. Local archives use
+`sveltick-1.7.1.tgz`, but contain the workspace source rather than the previously
+published npm package.
 
-```sh
-npm version 2.0.0-next.1 --workspace=sveltick --no-git-tag-version
-npm install --package-lock-only
-npm run release:check
-npm pack --workspace=sveltick
-```
+Change the version only when preparing an actual release. Choose it explicitly
+based on the API changes, update the package metadata and lockfile without
+creating a Git tag, then run the validation and packaging commands above.
 
 Review package metadata, changelog, README release status, archive contents and
 migration guidance before committing. Git review, pushing, tagging and npm

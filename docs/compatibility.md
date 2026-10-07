@@ -3,7 +3,7 @@
 Sveltick detects each measurement API independently. Browser names are not a
 substitute for checking `snapshot.metrics[name].status` in the running app.
 
-The 2.0 preview has been exercised in Chrome 150, Playwright Firefox 156 and
+The current development source has been exercised in Chrome 150, Playwright Firefox 156 and
 Playwright WebKit 26.6 on macOS arm64. WebKit automation is not a claim that every
 Safari release or iOS device has been tested.
 
